@@ -61,10 +61,11 @@ test('a page is laid out in two columns, and readers see them side by side', asy
   ]);
   expect(left && right && Math.abs(left.y - right.y) < 2 && right.width > left.width * 1.6).toBeTruthy();
   await page.setViewportSize({ width: 390, height: 800 });
+  // While the page lays itself out again, a column can have no box for a moment.
   await expect
     .poll(async () => {
-      const boxes = await Promise.all([0, 1].map((i) => view.locator('.kogge-column').nth(i).boundingBox()));
-      return boxes[1]!.y > boxes[0]!.y + boxes[0]!.height - 1;
+      const [a, b] = await Promise.all([0, 1].map((i) => view.locator('.kogge-column').nth(i).boundingBox()));
+      return !!a && !!b && b.y > a.y + a.height - 1;
     })
     .toBe(true);
 });

@@ -137,9 +137,11 @@ stage_browser() {
 	docker exec "$KOGGE_CI_PG" createdb -U kogge "$db"
 	http=$(free_port)
 	ssh=$(free_port)
+	# The URLs name the address the server listens on: where /etc/hosts gives localhost no IPv6 address, looking it
+	# up asks DNS, which can take half a minute for each request of the tests.
 	KOGGE_DATABASE_URL="postgres://kogge:kogge@127.0.0.1:$KOGGE_CI_PGPORT/$db?sslmode=disable" \
 		KOGGE_DATA_DIR="$data/data" KOGGE_HTTP_ADDR="127.0.0.1:$http" KOGGE_SSH_ADDR="127.0.0.1:$ssh" \
-		KOGGE_PUBLIC_URL="http://localhost:$http" KOGGE_AUTO_MIGRATE=true KOGGE_LOG_FORMAT=text \
+		KOGGE_PUBLIC_URL="http://127.0.0.1:$http" KOGGE_AUTO_MIGRATE=true KOGGE_LOG_FORMAT=text \
 		KOGGE_BOOTSTRAP_ADMIN_USERNAME=admin KOGGE_BOOTSTRAP_ADMIN_PASSWORD=Kogge-Dev-Secret-2026 \
 		bin/kogge serve >"$data/kogge.log" 2>&1 &
 	server=$! # global: the trap runs after this function has returned
@@ -158,7 +160,7 @@ stage_browser() {
 		return 1
 	fi
 	rm -rf e2e/test-results
-	(cd e2e && KOGGE_E2E_URL="http://localhost:$http" KOGGE_E2E_BROWSER="$browser" npx playwright test) || result=$?
+	(cd e2e && KOGGE_E2E_URL="http://127.0.0.1:$http" KOGGE_E2E_BROWSER="$browser" npx playwright test) || result=$?
 	if [ "$result" != 0 ]; then
 		echo "-- the end of Kogge's log ($browser)"
 		tail -n 100 "$data/kogge.log"
