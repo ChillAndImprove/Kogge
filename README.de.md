@@ -6,6 +6,8 @@
 
 **Vorgänge, Wiki, Code und Builds – auf Ihren eigenen Servern.**
 
+[**Live-Vorschau ausprobieren →**](https://chillandimprove.github.io/Kogge/)
+
 [![Lizenz: EUPL-1.2](https://img.shields.io/badge/Lizenz-EUPL--1.2-0b5563)](LICENSE)
 ![Go 1.27](https://img.shields.io/badge/Go-1.27-00add8?logo=go&logoColor=white)
 ![PostgreSQL 16+](https://img.shields.io/badge/PostgreSQL-16%2B-4169e1?logo=postgresql&logoColor=white)
@@ -18,7 +20,7 @@
 
 </div>
 
-![Ein Sprint-Board in Kontor](.github/screenshots/board.png)
+[![Ein Sprint-Board in Kontor](.github/screenshots/board.png)](https://chillandimprove.github.io/Kogge/)
 
 Kogge bringt zusammen, womit Software-Teams jeden Tag arbeiten: Vorgänge mit agilen Boards, ein Wiki, Git-Hosting
 mit Pull-Requests und Pipelines, die bauen und ausliefern. Es ist ein einzelnes Go-Binary mit PostgreSQL dahinter,
@@ -119,8 +121,9 @@ make web-dev    # die Web-Anwendung mit Hot Reload auf http://localhost:5173
 Keycloak brauchen Sie dafür nicht: Kogge hat lokale Konten, und Single Sign-on ist erst eingeschaltet, wenn
 `KOGGE_OIDC_ISSUER` gesetzt ist.
 
-**Nur mal ansehen?** `make web-install showcase` baut eine Vorschau, die ganz im Browser läuft, mit den
-Beispielinhalten eines erfundenen Webshops; jeder statische Webserver liefert sie aus, z. B.
+**Nur mal ansehen?** Die [Live-Vorschau](https://chillandimprove.github.io/Kogge/) läuft ganz im Browser, mit den
+Beispielinhalten eines erfundenen Webshops. Zum Selbstbauen `make web-install showcase` ausführen und
+`web/dist-showcase` mit einem beliebigen statischen Webserver ausliefern, z. B.
 `python3 -m http.server -d web/dist-showcase 8000`.
 
 ## Installation

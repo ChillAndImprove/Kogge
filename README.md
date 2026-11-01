@@ -6,6 +6,8 @@
 
 **Issues, wiki, code and builds – on your own servers.**
 
+[**Try the live preview →**](https://chillandimprove.github.io/Kogge/)
+
 [![Licence: EUPL-1.2](https://img.shields.io/badge/licence-EUPL--1.2-0b5563)](LICENSE)
 ![Go 1.27](https://img.shields.io/badge/Go-1.27-00add8?logo=go&logoColor=white)
 ![PostgreSQL 16+](https://img.shields.io/badge/PostgreSQL-16%2B-4169e1?logo=postgresql&logoColor=white)
@@ -18,7 +20,7 @@
 
 </div>
 
-![A sprint board in Kontor](.github/screenshots/board.png)
+[![A sprint board in Kontor](.github/screenshots/board.png)](https://chillandimprove.github.io/Kogge/)
 
 Kogge puts what software teams use every day on one platform: an issue tracker with agile boards, a wiki, Git
 hosting with pull requests, and pipelines that build and deploy. It is a single Go binary with PostgreSQL behind
@@ -117,9 +119,9 @@ make web-dev    # the web application with hot reload on http://localhost:5173
 No Keycloak is needed for this: Kogge has local accounts, and single sign-on is switched on only when
 `KOGGE_OIDC_ISSUER` is set.
 
-**Just looking?** `make web-install showcase` builds a preview that runs entirely in the browser, with the sample
-content of a fictitious web shop; serve it with any static web server, e.g.
-`python3 -m http.server -d web/dist-showcase 8000`.
+**Just looking?** The [live preview](https://chillandimprove.github.io/Kogge/) runs entirely in the browser, with the
+sample content of a fictitious web shop. To build it yourself, run `make web-install showcase` and serve
+`web/dist-showcase` with any static web server, e.g. `python3 -m http.server -d web/dist-showcase 8000`.
 
 ## Installation
 
