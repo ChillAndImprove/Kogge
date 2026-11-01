@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Lets through only commits that passed the full CI pipeline: runs tools/ci/run.sh -p full for every pushed commit
+# without a passing full run, and refuses the push if the pipeline fails. git push --no-verify skips this.
+set -eu
+root=$(git rev-parse --show-toplevel)
+cd "$root"
+unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_PREFIX
+enabled=${KOGGE_CI_ENABLED:-$(git config --get kogge.ci.enabled || echo true)}
+[ "$enabled" = false ] && exit 0
+
+# Each line: local ref, local commit, remote ref, remote commit.
+while read -r ref sha _ _; do
+	case $sha in *[!0]*) ;; *) continue ;; esac # a ref being deleted
+	if tools/ci/status.sh --passed full "$sha"; then
+		continue
+	fi
+	echo "kogge-ci: the full pipeline runs for $ref ($(git rev-parse --short "$sha")) before the push" >&2
+	if ! tools/ci/run.sh -p full "$sha" </dev/null; then
+		echo "kogge-ci: the pipeline failed, so $ref is not pushed (tools/ci/status.sh $sha)" >&2
+		exit 1
+	fi
+done

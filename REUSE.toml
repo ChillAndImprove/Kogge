@@ -1,0 +1,15 @@
+# REUSE compliance (https://reuse.software). Files with their own SPDX header take precedence.
+version = 1
+
+[[annotations]]
+path = "**"
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 The Kogge authors"
+SPDX-License-Identifier = "EUPL-1.2"
+
+# The JSON schemas of CycloneDX 1.6 (specification 1.6.2), which tools/sbom checks its SBOMs against.
+[[annotations]]
+path = ["tools/sbom/spdx.schema.json", "tools/sbom/testdata/bom-1.6.schema.json", "tools/sbom/testdata/jsf-0.82.schema.json"]
+precedence = "override"
+SPDX-FileCopyrightText = "OWASP Foundation"
+SPDX-License-Identifier = "Apache-2.0"

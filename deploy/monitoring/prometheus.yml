@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Example Prometheus configuration for Kogge: scrapes the metrics listener of every node (KOGGE_METRICS_ADDR) and loads
+# the alerting rules in alerts.yml. In the Compose stack the listener is kogge:9090 inside the Compose network, so a
+# Prometheus outside that network needs the port published or must join the network. Import grafana-dashboard.json
+# into Grafana and choose this Prometheus as its data source.
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+rule_files:
+  - alerts.yml
+
+# Send the alerts to your Alertmanager (or remove this block to see them only in Prometheus).
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  # The job name must be "kogge" or start with it: the alerting rules select job=~"kogge.*".
+  - job_name: kogge
+    static_configs:
+      # One target per node, e.g. kogge-1.example.com:9090 and kogge-2.example.com:9090.
+      - targets: ["kogge:9090"]

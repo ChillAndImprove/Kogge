@@ -1,0 +1,1102 @@
+/* SPDX-FileCopyrightText: 2026 The Kogge authors */
+/* SPDX-License-Identifier: EUPL-1.2 */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--mantine-color-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Inter: l with a tail and I with serifs, so that keys and names like "Il1" are unambiguous. */
+  font-feature-settings: 'cv05', 'cv08';
+}
+
+/* Code is shown as written: JetBrains Mono would draw != as ≠ and -> as an arrow, which hides what the
+   characters are (and Inter's character variants above don't belong in code either). */
+code,
+pre,
+kbd,
+samp,
+.kogge-code,
+.kogge-log,
+.kogge-search-lines,
+.kogge-token,
+[style*='font-family-monospace'] {
+  font-variant-ligatures: none;
+  font-feature-settings: normal;
+}
+
+/* Matches of a search (highlights in documents: editor.css). */
+mark {
+  background: var(--mantine-color-yellow-3);
+  color: inherit;
+  border-radius: 2px;
+}
+:where([data-mantine-color-scheme='dark']) mark {
+  background: color-mix(in srgb, var(--mantine-color-yellow-6) 35%, transparent);
+  color: var(--mantine-color-white);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mantine-color-gray-4) transparent;
+}
+[data-mantine-color-scheme='dark'] * {
+  scrollbar-color: var(--mantine-color-dark-3) transparent;
+}
+
+/* Design system (theme.ts): controls are 32 px high by default (size sm) and 28 px when small (xs); labels and
+   buttons speak at weight 500; things react to hover and focus in 120 ms, without bouncing. */
+.mantine-Button-root {
+  --button-height-xs: 1.75rem;
+  --button-height-sm: 2rem;
+  --button-height-md: 2.25rem;
+  --button-height-lg: 2.5rem;
+  --button-height-xl: 2.75rem;
+  --button-padding-x-xs: 0.625rem;
+  --button-padding-x-sm: 0.875rem;
+  --button-padding-x-md: 1rem;
+  font-weight: 500;
+}
+.mantine-Button-root,
+.mantine-ActionIcon-root,
+.mantine-NavLink-root,
+.mantine-Tabs-tab,
+.mantine-Input-input,
+.mantine-Menu-item,
+.kogge-nav-link,
+.kogge-header-search {
+  transition:
+    background-color 120ms ease-out,
+    color 120ms ease-out,
+    border-color 120ms ease-out,
+    box-shadow 120ms ease-out;
+}
+/* While the colour scheme changes (Shell.tsx), nothing transitions. */
+.kogge-no-transitions *,
+.kogge-no-transitions *::before,
+.kogge-no-transitions *::after {
+  transition: none !important;
+}
+.mantine-Input-wrapper {
+  --input-height-xs: 1.75rem;
+  --input-height-sm: 2rem;
+  --input-height-md: 2.25rem;
+  --input-height-lg: 2.5rem;
+  --input-height-xl: 2.75rem;
+}
+/* A field with the focus: the accent's edge and a soft ring of it (fields without a frame, such as the quick
+   search's, keep none). */
+.mantine-Input-input:not([data-variant='unstyled']):focus,
+.mantine-Input-input:not([data-variant='unstyled']):focus-within {
+  border-color: var(--mantine-primary-color-filled);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mantine-primary-color-filled) 25%, transparent);
+  outline: none;
+}
+.mantine-SegmentedControl-root {
+  --sc-padding-sm: 0.25rem 0.75rem;
+}
+.mantine-SegmentedControl-label {
+  font-weight: 500;
+}
+.mantine-InputWrapper-label {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+/* Headings of 20 px and more are set a little tighter. */
+.mantine-Title-root:where([data-order='1'], [data-order='2'], [data-order='3']) {
+  letter-spacing: -0.01em;
+}
+.mantine-Title-root[data-order='1'] {
+  letter-spacing: -0.02em;
+}
+/* Menus: items of 32 px. */
+.mantine-Menu-item {
+  min-height: 2rem;
+  font-size: var(--mantine-font-size-md);
+}
+/* Tabs are underlined: a thin line under the list, the accent's 2 px under the current tab, no hover slab. */
+.mantine-Tabs-list[data-variant='default']::before {
+  border-top-width: 0;
+}
+.mantine-Tabs-list[data-variant='default'] {
+  --tab-hover-color: transparent;
+}
+.mantine-Tabs-tab[data-variant='default'] {
+  color: var(--mantine-color-dimmed);
+}
+.mantine-Tabs-tab[data-variant='default']:hover,
+.mantine-Tabs-tab[data-variant='default'][data-active] {
+  color: var(--mantine-color-text);
+}
+/* Avatars' initials at weight 600. */
+.mantine-Avatar-placeholder {
+  font-weight: 600;
+}
+
+/* Badges in sentence case (theme.ts) read at one size more than Mantine's capitals. */
+.mantine-Badge-root {
+  --badge-fz-xs: 0.625rem;
+  --badge-fz-sm: 0.6875rem;
+  --badge-fz-md: 0.75rem;
+  --badge-fz-lg: 0.8125rem;
+}
+
+/* A disabled button is the same button, faded: a form still shows its submit button, and nothing disabled looks
+   like another state (a grey square would read as pressed). */
+.mantine-Button-root:where(:disabled, [data-disabled]):not([data-loading]) {
+  background: var(--button-bg, var(--mantine-primary-color-filled));
+  color: var(--button-color, var(--mantine-color-white));
+  border: var(--button-bd, 1px solid transparent);
+  opacity: 0.5;
+}
+.mantine-ActionIcon-root:where(:disabled, [data-disabled]):not([data-loading]) {
+  background: var(--ai-bg, var(--mantine-primary-color-filled));
+  color: var(--ai-color, var(--mantine-color-white));
+  border: var(--ai-bd, 1px solid transparent);
+  opacity: 0.4;
+}
+
+/* An off switch is a solid grey track, not a pale one that reads as disabled. */
+[data-mantine-color-scheme='light'] .mantine-Switch-track {
+  --switch-bg: var(--mantine-color-gray-5);
+}
+[data-mantine-color-scheme='dark'] .mantine-Switch-track {
+  --switch-bg: var(--mantine-color-dark-3);
+}
+
+/* Navigation items are 32 px high with a 16 px icon; the current one is the accent's tint and text with a 3 px
+   marker at its start, told apart from light buttons. */
+.mantine-NavLink-root {
+  min-height: 2rem;
+  padding-block: 0.3125rem;
+  border-radius: var(--mantine-radius-md);
+}
+.mantine-NavLink-label {
+  font-size: var(--mantine-font-size-md);
+  font-weight: 500;
+}
+.mantine-NavLink-section svg {
+  width: 1rem;
+  height: 1rem;
+}
+.mantine-NavLink-root:where([data-active], [aria-current='page']) {
+  box-shadow: inset 3px 0 0 var(--mantine-primary-color-filled);
+}
+
+/* Dialogs stand out from the dimmed page also in the dark scheme. */
+[data-mantine-color-scheme='dark'] .mantine-Modal-content,
+[data-mantine-color-scheme='dark'] .mantine-Drawer-content {
+  border: 1px solid var(--mantine-color-dark-4);
+}
+
+/* Cards and papers with an edge: 1 px of the quiet border, no shadow at rest. */
+.mantine-Card-root,
+.mantine-Paper-root {
+  --paper-border-color: var(--mantine-color-gray-3);
+}
+[data-mantine-color-scheme='dark'] .mantine-Card-root,
+[data-mantine-color-scheme='dark'] .mantine-Paper-root {
+  --paper-border-color: var(--mantine-color-dark-4);
+}
+
+/* Tables: one style everywhere — a quiet header row, row lines. */
+.mantine-Table-thead {
+  background: var(--mantine-color-gray-0);
+}
+[data-mantine-color-scheme='dark'] .mantine-Table-thead {
+  background: var(--mantine-color-dark-6);
+}
+.mantine-Table-th {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  color: var(--mantine-color-dimmed);
+  white-space: nowrap;
+}
+/* Numbers that line up in a column (durations, sizes, counts): tabular figures. Only on numbers: Inter's tabular
+   forms also widen the hyphen, which spreads keys and names ("SHOP - 4", "Sign - in"). */
+.kogge-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The header (Shell.tsx): one neutral bar of 52 px for every product. The product shows in its logo tile
+   and its accent: the underline of the current item, the filled "Create", links and focus. */
+.kogge-header {
+  background: var(--mantine-color-body);
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+[data-mantine-color-scheme='dark'] .kogge-header {
+  background: var(--mantine-color-dark-5);
+  border-bottom-color: var(--mantine-color-dark-4);
+}
+.kogge-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--mantine-color-text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.kogge-brand:focus-visible,
+.kogge-nav-link:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+  border-radius: var(--mantine-radius-sm);
+}
+/* The product's navigation: quiet text items; the current one has the accent's 2 px underline at the header's
+   edge. */
+.kogge-nav-link {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 2px 0.625rem 0;
+  border-bottom: 2px solid transparent;
+  color: var(--mantine-color-dimmed);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: var(--mantine-font-size-md);
+  white-space: nowrap;
+}
+.kogge-nav-link:hover {
+  color: var(--mantine-color-text);
+}
+.kogge-nav-link[aria-current='page'] {
+  color: var(--mantine-color-text);
+  border-bottom-color: var(--mantine-primary-color-filled);
+}
+.kogge-header-icon {
+  color: var(--mantine-color-dimmed);
+}
+.kogge-header-icon:hover {
+  color: var(--mantine-color-text);
+}
+/* The header's search field (QuickSearch.tsx): a button that looks like a field and opens the quick search. */
+.kogge-header-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 15rem;
+  height: 2rem;
+  padding: 0 6px 0 10px;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-gray-0);
+  color: var(--mantine-color-dimmed);
+  font: inherit;
+  font-size: var(--mantine-font-size-sm);
+  text-align: left;
+  cursor: text;
+}
+[data-mantine-color-scheme='dark'] .kogge-header-search {
+  border-color: var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-6);
+}
+.kogge-header-search:hover {
+  border-color: var(--mantine-color-gray-4);
+  color: var(--mantine-color-text);
+}
+[data-mantine-color-scheme='dark'] .kogge-header-search:hover {
+  border-color: var(--mantine-color-dark-3);
+}
+.kogge-header-search:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+.kogge-header-search-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.kogge-header-search .kogge-header-search-key {
+  font-size: 0.6875rem;
+  white-space: nowrap;
+}
+@media (min-width: 75em) {
+  .kogge-header-search {
+    width: 17.5rem;
+  }
+}
+/* A button with a menu beside it (the header's "Create"): one shape with a seam. */
+.kogge-split-button > .mantine-Button-root:first-child {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+.kogge-split-button > .mantine-Button-root:last-child {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+  border-inline-start: 1px solid rgba(255, 255, 255, 0.35);
+}
+/* The drawer of narrow screens (Shell.tsx): the product's navigation, the page's, then the products. */
+.kogge-drawer-slot:empty {
+  display: none;
+}
+.kogge-drawer-slot {
+  padding-top: var(--mantine-spacing-md);
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+/* Notifications (Shell.tsx): rows divided by lines; unread ones with a dot. */
+.kogge-notification {
+  display: block;
+  width: 100%;
+  padding: 10px var(--mantine-spacing-md);
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+.kogge-notification:hover {
+  background: var(--mantine-color-default-hover);
+}
+.kogge-unread-dot {
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--mantine-primary-color-filled);
+}
+.kogge-product-card {
+  text-decoration: none;
+  transition:
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+.kogge-product-card:hover {
+  box-shadow: var(--mantine-shadow-md);
+  transform: translateY(-1px);
+}
+
+[data-product='logbuch'] .mantine-AppShell-main {
+  background: var(--mantine-color-body);
+}
+
+/* On wide screens the pages keep to a centred column instead of stretching from the left edge: lists, cards and
+   texts read badly across 1920 pixels. Hafen's is narrower, as code hosts do for file lists, READMEs and diffs. */
+.mantine-AppShell-main > * {
+  max-width: 90rem;
+  margin-inline: auto;
+}
+[data-product='hafen'] .mantine-AppShell-main > * {
+  max-width: 80rem;
+}
+/* Logbuch is for reading: narrower still. */
+[data-product='logbuch'] .mantine-AppShell-main > * {
+  max-width: 76rem;
+}
+
+/* Logbuch's lists of changes and posts: an entry lights up under the pointer, a post's title is underlined. */
+.logbuch-feed-item:hover,
+.logbuch-post:hover {
+  background: var(--mantine-color-default-hover);
+}
+.logbuch-post {
+  color: inherit;
+  text-decoration: none;
+}
+.logbuch-post:hover .logbuch-post-title {
+  text-decoration: underline;
+}
+
+.kogge-token {
+  font-family: var(--mantine-font-family-monospace);
+  word-break: break-all;
+}
+
+/* The app switcher: the current place has an outline, not only a shade, for screens without colour. */
+.kogge-switcher [aria-current='page'] {
+  box-shadow: inset 0 0 0 1.5px var(--mantine-color-dimmed);
+}
+
+/* A project's epics: cards with the epic's colour at the left. */
+.kogge-epic-card {
+  border-left-width: 4px;
+  transition:
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+.kogge-epic-card:hover {
+  box-shadow: var(--mantine-shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Agile boards */
+.kogge-card[data-selected] {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: -1px;
+}
+.kogge-board-column {
+  background: var(--mantine-color-gray-0);
+  border-radius: var(--mantine-radius-md);
+}
+[data-mantine-color-scheme='dark'] .kogge-board-column {
+  background: var(--mantine-color-dark-6);
+}
+.kogge-board-column[data-over] {
+  outline: 2px dashed var(--mantine-primary-color-filled);
+  outline-offset: -2px;
+}
+.kogge-board-column[data-wip='over'] {
+  background: var(--mantine-color-red-0);
+}
+.kogge-board-column[data-wip='under'] {
+  background: var(--mantine-color-yellow-0);
+}
+[data-mantine-color-scheme='dark'] .kogge-board-column[data-wip='over'] {
+  background: rgba(250, 82, 82, 0.15);
+}
+[data-mantine-color-scheme='dark'] .kogge-board-column[data-wip='under'] {
+  background: rgba(250, 176, 5, 0.12);
+}
+.kogge-backlog-row {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+  cursor: grab;
+}
+.kogge-backlog-row:hover {
+  background: var(--mantine-color-default-hover);
+}
+.kogge-backlog-row[data-selected] {
+  background: var(--mantine-primary-color-light);
+}
+
+/* Wiki page tree */
+/* Page tree: nested lists, "+" on hover, drop indicators while a page is dragged */
+.kogge-tree-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.kogge-tree-row {
+  position: relative;
+  border-radius: var(--mantine-radius-sm);
+}
+.kogge-tree-row:hover {
+  background: var(--mantine-color-default-hover);
+}
+.kogge-tree-row[data-active] {
+  background: var(--mantine-primary-color-light);
+  box-shadow: inset 3px 0 0 var(--mantine-primary-color-filled);
+}
+.kogge-tree-row[data-dragging] {
+  opacity: 0.45;
+}
+.kogge-tree-row[data-drop='inside'] {
+  background: var(--mantine-primary-color-light);
+  box-shadow: inset 0 0 0 2px var(--mantine-primary-color-filled);
+}
+.kogge-tree-row[data-drop='before']::before,
+.kogge-tree-row[data-drop='after']::after {
+  content: '';
+  position: absolute;
+  left: var(--kogge-tree-indent, 0);
+  right: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--mantine-primary-color-filled);
+  pointer-events: none;
+}
+.kogge-tree-row[data-drop='before']::before {
+  top: -1px;
+}
+.kogge-tree-row[data-drop='after']::after {
+  bottom: -1px;
+}
+.kogge-tree-add {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.kogge-tree-row:hover .kogge-tree-add,
+.kogge-tree-row:focus-within .kogge-tree-add {
+  opacity: 1;
+}
+@media (hover: none) {
+  .kogge-tree-add {
+    opacity: 1;
+  }
+}
+
+/* Cards that are choices (templates): buttons that look like cards */
+.kogge-choice-card {
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+.kogge-choice-card:hover:not(:disabled) {
+  border-color: var(--mantine-primary-color-filled);
+}
+.kogge-choice-card:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+.kogge-choice-card:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+/* Version comparison */
+.kogge-ins {
+  background: rgba(64, 192, 87, 0.25);
+  text-decoration: none;
+}
+.kogge-del {
+  background: rgba(250, 82, 82, 0.2);
+}
+.kogge-conflict-pane {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  padding: var(--mantine-spacing-md);
+  max-height: 60vh;
+  overflow: auto;
+}
+
+/* Issue view: two columns where there is room — a page — and one in narrow places such as the
+   drawer of boards, where the details come first. */
+.kogge-issue {
+  container-type: inline-size;
+  position: relative;
+}
+.kogge-issue-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mantine-spacing-xl);
+  align-items: start;
+}
+.kogge-issue-side {
+  order: -1;
+}
+@container (min-width: 54rem) {
+  .kogge-issue-layout {
+    grid-template-columns: minmax(0, 1fr) 21rem;
+  }
+  .kogge-issue-side {
+    order: 0;
+    position: sticky;
+    top: var(--mantine-spacing-md);
+  }
+}
+.kogge-issue-drop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-xs);
+  border: 2px dashed var(--mantine-primary-color-filled);
+  border-radius: var(--mantine-radius-md);
+  background: color-mix(in srgb, var(--mantine-color-body) 85%, var(--mantine-primary-color-filled));
+  color: var(--mantine-primary-color-filled);
+  pointer-events: none;
+}
+.kogge-summary {
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+.kogge-summary-editable {
+  display: block;
+  width: calc(100% + 12px);
+  margin: -2px -6px;
+  padding: 2px 6px;
+  border-radius: var(--mantine-radius-sm);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: text;
+}
+.kogge-summary-editable:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+}
+.kogge-summary-editable:hover {
+  background: var(--mantine-color-gray-1);
+}
+[data-mantine-color-scheme='dark'] .kogge-summary-editable:hover {
+  background: var(--mantine-color-dark-5);
+}
+.kogge-summary-input {
+  font-size: var(--mantine-h2-font-size);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Details: labels and values in two columns; values read like text and turn into inputs (InlineEdit.tsx). */
+.kogge-details {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 38%) minmax(0, 1fr);
+  column-gap: var(--mantine-spacing-sm);
+  row-gap: 2px;
+  margin: 0;
+  align-items: start;
+}
+.kogge-details + .kogge-details {
+  margin-top: 2px;
+}
+.kogge-details-label {
+  padding: 6px 0;
+  font-size: var(--mantine-font-size-sm);
+  line-height: 1.4;
+  color: var(--mantine-color-dimmed);
+  overflow-wrap: anywhere;
+}
+.kogge-details-value {
+  margin: 0;
+  min-width: 0;
+}
+.kogge-details-action {
+  display: block;
+  margin: -2px 0 4px;
+}
+.kogge-details-more {
+  margin-top: var(--mantine-spacing-xs);
+  padding: 4px 0;
+  color: var(--mantine-color-dimmed);
+}
+.kogge-details-more:hover {
+  color: var(--mantine-color-text);
+}
+.kogge-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: calc(100% + 12px);
+  min-height: 32px;
+  margin-left: -6px;
+  padding: 4px 6px;
+  border-radius: var(--mantine-radius-sm);
+  text-align: left;
+}
+.kogge-inline:hover {
+  background: var(--mantine-color-gray-1);
+}
+[data-mantine-color-scheme='dark'] .kogge-inline:hover {
+  background: var(--mantine-color-dark-5);
+}
+.kogge-inline:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: -2px;
+}
+.kogge-inline-value {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--mantine-font-size-sm);
+}
+.kogge-inline-static {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 0;
+}
+.kogge-inline-icon {
+  flex-shrink: 0;
+  color: var(--mantine-color-dimmed);
+}
+.kogge-inline-pencil {
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.kogge-inline:hover .kogge-inline-pencil,
+.kogge-inline:focus-visible .kogge-inline-pencil {
+  opacity: 1;
+}
+.kogge-inline-editor {
+  padding: 2px 0;
+}
+
+/* Rich text that is edited in place: the description and long text fields. */
+.kogge-editable-block {
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border-radius: var(--mantine-radius-sm);
+  cursor: text;
+}
+.kogge-editable-block:hover {
+  background: var(--mantine-color-gray-0);
+}
+[data-mantine-color-scheme='dark'] .kogge-editable-block:hover {
+  background: var(--mantine-color-dark-6);
+}
+.kogge-editable-block:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+}
+
+.kogge-attachment {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-body);
+}
+.kogge-attachment-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 84px;
+  background: var(--mantine-color-gray-0);
+  color: var(--mantine-color-dimmed);
+}
+[data-mantine-color-scheme='dark'] .kogge-attachment-preview {
+  background: var(--mantine-color-dark-6);
+}
+.kogge-attachment-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.kogge-attachment-delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.kogge-attachment:hover .kogge-attachment-delete,
+.kogge-attachment-delete:focus-visible {
+  opacity: 1;
+}
+
+.kogge-issue-row {
+  min-height: 34px;
+  padding: 2px 6px;
+  margin: 0 -6px;
+  border-radius: var(--mantine-radius-sm);
+}
+.kogge-issue-row:hover {
+  background: var(--mantine-color-gray-0);
+}
+[data-mantine-color-scheme='dark'] .kogge-issue-row:hover {
+  background: var(--mantine-color-dark-6);
+}
+.kogge-issue-row-action,
+.kogge-comment-actions {
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.kogge-issue-row:hover .kogge-issue-row-action,
+.kogge-issue-row-action:focus-visible,
+.kogge-comment:hover .kogge-comment-actions,
+.kogge-comment-actions:focus-within {
+  opacity: 1;
+}
+@media (hover: none) {
+  .kogge-inline-pencil,
+  .kogge-attachment-delete,
+  .kogge-issue-row-action,
+  .kogge-comment-actions {
+    opacity: 1;
+  }
+}
+
+/* Forms with many fields: two columns where there is room; long text across both. */
+.kogge-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--mantine-spacing-md);
+}
+.kogge-form-grid:empty {
+  display: none;
+}
+.kogge-form-grid > [data-wide] {
+  grid-column: 1 / -1;
+}
+
+/* Board cards: actions at the top right, shown on hover. */
+.kogge-card {
+  position: relative;
+}
+.kogge-card-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.kogge-card:hover .kogge-card-actions,
+.kogge-card:focus-within .kogge-card-actions,
+.kogge-card-actions:has([aria-expanded='true']) {
+  opacity: 1;
+}
+@media (hover: none) {
+  .kogge-card-actions {
+    opacity: 1;
+  }
+}
+/* People filter of boards: avatars that are switched on and off. */
+.kogge-person-filter {
+  border-radius: 50%;
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+  transition:
+    transform 100ms,
+    outline-color 100ms;
+}
+.kogge-person-filter:hover {
+  transform: translateY(-2px);
+}
+.kogge-person-filter[data-active] {
+  outline-color: var(--mantine-primary-color-filled);
+}
+.kogge-person-filter:focus-visible {
+  outline-color: var(--mantine-primary-color-filled);
+  outline-style: dashed;
+}
+
+/* Links in running text are told apart by more than colour (WCAG 1.4.1): in alerts they take the alert's text
+   colour and are underlined; in documents they are underlined. */
+.mantine-Alert-message a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.kogge-doc p a,
+.kogge-doc li a,
+.kogge-doc td a {
+  text-decoration: underline;
+}
+
+/* Mermaid diagrams (MermaidDiagram.tsx): centred, at most as wide as the text, scrolling when wider. */
+.kogge-mermaid {
+  position: relative;
+  margin: 0.9em 0;
+  padding: 0.75em 1em;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-body);
+  overflow-x: auto;
+}
+.kogge-mermaid-tools {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 1;
+}
+.kogge-mermaid-svg {
+  display: flex;
+  justify-content: center;
+}
+.kogge-mermaid-svg[hidden] {
+  display: none;
+}
+.kogge-mermaid-svg svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Markdown with a preview (Hafen): the tabs and the formatting tools share one line. */
+.kogge-markdown-head {
+  display: flex;
+  align-items: stretch;
+}
+.kogge-markdown-head > .mantine-Tabs-list {
+  flex: 1 1 auto;
+}
+.kogge-markdown-tools {
+  align-items: center;
+  border-bottom: 1px solid var(--tab-border-color);
+}
+.kogge-markdown-preview {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  min-height: 4.5rem;
+  overflow-wrap: anywhere;
+}
+
+/* The query box of the navigator (KqlInput.tsx): suggestions below the query. */
+.kogge-kql-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 300;
+  max-height: 18rem;
+  overflow-y: auto;
+  padding: 4px;
+}
+.kogge-kql-option {
+  padding: 4px 8px;
+  border-radius: var(--mantine-radius-sm);
+  cursor: pointer;
+}
+.kogge-kql-option[data-active] {
+  background: var(--mantine-primary-color-light);
+}
+
+/* Bulk changes: the bar of the chosen issues. */
+.kogge-bulk-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+/* The quick search (Ctrl+K): a field over a list of options grouped by product; the active option is marked by
+   its background and a bar at its start, which the keyboard and the mouse move. */
+.kogge-qs .kogge-qs-input {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+  min-height: 3.25rem;
+}
+.kogge-qs-search-icon {
+  flex: 0 0 auto;
+  color: var(--mantine-color-dimmed);
+}
+/* The product the quick search looks in: a chip that can be removed. */
+.kogge-qs-scope {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 2px 2px 6px;
+  border-radius: var(--mantine-radius-sm);
+  background: var(--mantine-color-default-hover);
+  border: 1px solid var(--mantine-color-default-border);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.kogge-qs-list {
+  padding: 4px 0 6px;
+}
+.kogge-qs-heading {
+  padding: 10px var(--mantine-spacing-md) 4px;
+}
+.kogge-qs-option {
+  display: block;
+  padding: 6px var(--mantine-spacing-md);
+  border-inline-start: 3px solid transparent;
+  cursor: pointer;
+}
+.kogge-qs-option[data-active] {
+  background: var(--mantine-color-default-hover);
+  border-inline-start-color: var(--mantine-primary-color-filled);
+}
+.kogge-qs-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  flex: 0 0 22px;
+  color: var(--mantine-color-dimmed);
+}
+.kogge-qs-footer {
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+/* Activity streams and search hits: lists of entries divided by lines. */
+.kogge-activity {
+  list-style: none;
+}
+.kogge-activity-line + .kogge-activity-line,
+.kogge-search-hit + .kogge-search-hit {
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+/* Page headers (PageHeader.tsx): the title takes the room it needs and wraps; on phones the actions get a row of
+   their own under it. */
+.kogge-page-header-text {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+.kogge-page-title {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 47.99em) {
+  .kogge-page-header-actions {
+    flex-basis: 100%;
+  }
+}
+
+/* A container's pages (SidebarLayout.tsx): a sidebar of 248 px from the header to the bottom of the window, on a
+   surface one step off the page (the main area's padding is undone for it); collapsed, a rail of 52 px. On narrow
+   screens a line naming the container opens the navigation in the header's drawer. */
+.kogge-sidebar-layout {
+  display: grid;
+  grid-template-columns: 15.5rem minmax(0, 1fr);
+  margin: calc(var(--app-shell-padding) * -1);
+  min-height: calc(100dvh - var(--app-shell-header-offset, 52px));
+}
+.kogge-sidebar-layout[data-collapsed] {
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+}
+.kogge-sidebar {
+  position: sticky;
+  top: var(--app-shell-header-offset, 52px);
+  align-self: start;
+  height: calc(100dvh - var(--app-shell-header-offset, 52px));
+  overflow-y: auto;
+  padding: var(--mantine-spacing-sm);
+  background: var(--mantine-color-gray-0);
+  border-inline-end: 1px solid var(--mantine-color-gray-3);
+}
+[data-mantine-color-scheme='dark'] .kogge-sidebar {
+  background: var(--mantine-color-dark-6);
+  border-inline-end-color: var(--mantine-color-dark-4);
+}
+.kogge-sidebar-layout[data-collapsed] .kogge-sidebar {
+  padding-inline: 0.5rem;
+}
+.kogge-sidebar-main {
+  min-width: 0;
+  padding: var(--app-shell-padding);
+}
+/* On the sidebar's surface a hovered item takes the next shade. */
+.kogge-sidebar .mantine-NavLink-root:not([data-active]):not([aria-current='page']):hover {
+  background: var(--mantine-color-gray-1);
+}
+[data-mantine-color-scheme='dark']
+  .kogge-sidebar
+  .mantine-NavLink-root:not([data-active]):not([aria-current='page']):hover {
+  background: var(--mantine-color-dark-5);
+}
+.kogge-sidebar-header {
+  padding: 4px 4px 4px 6px;
+}
+.kogge-sidebar-title {
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+.kogge-sidebar-title:hover {
+  text-decoration: underline;
+}
+.kogge-sidebar-collapse {
+  flex: 0 0 auto;
+}
+.kogge-context-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-xs);
+  width: 100%;
+  margin: calc(var(--mantine-spacing-xs) * -1) 0 var(--mantine-spacing-md);
+  padding: 6px var(--mantine-spacing-sm);
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  color: var(--mantine-color-text);
+  font-weight: 600;
+}
+.kogge-context-bar:hover {
+  background: var(--mantine-color-default-hover);
+}
+
+/* People's names that lead to their pages (PersonLink.tsx). */
+.kogge-person-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  vertical-align: bottom;
+}
+.kogge-person-link > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kogge-person-link[data-inactive] > span {
+  color: var(--mantine-color-dimmed);
+}

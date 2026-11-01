@@ -1,0 +1,126 @@
+{{/* SPDX-FileCopyrightText: 2026 The Kogge authors
+SPDX-License-Identifier: EUPL-1.2
+
+The page of the analysis and validation reports of a migration: self-contained (no scripts, fonts or images
+from elsewhere) and printable. */ -}}
+<!doctype html>
+<html lang="{{.Lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}}</title>
+<style>
+:root {
+  --text: #1c2430; --muted: #5d6878; --line: #d9dee5; --soft: #f4f6f8;
+  --pass: #1f7a3f; --pass-bg: #e6f4ea; --warn: #8a5a00; --warn-bg: #fff4d6; --fail: #b3261e; --fail-bg: #fde8e7;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--text); background: #fff; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+main { max-width: 1180px; margin: 0 auto; padding: 32px 24px 48px; }
+header h1 { margin: 0 0 4px; font-size: 28px; line-height: 1.2; }
+header .subtitle { color: var(--muted); margin: 0 0 20px; word-break: break-all; }
+dl.facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 24px; }
+dl.facts dt { color: var(--muted); }
+dl.facts dd { margin: 0; word-break: break-word; }
+.tiles { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 24px; }
+.tile { flex: 1 1 140px; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; background: var(--soft); }
+.tile .value { font-size: 24px; font-weight: 600; }
+.tile .label { color: var(--muted); font-size: 13px; }
+.tile.pass { background: var(--pass-bg); border-color: #b7dfc3; } .tile.pass .value { color: var(--pass); }
+.tile.warn { background: var(--warn-bg); border-color: #f0d792; } .tile.warn .value { color: var(--warn); }
+.tile.fail { background: var(--fail-bg); border-color: #f3b9b4; } .tile.fail .value { color: var(--fail); }
+nav.toc { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px 0; margin: 0 0 24px; }
+nav.toc a { margin-right: 16px; color: #1d4f91; text-decoration: none; }
+section { margin: 0 0 32px; }
+h2 { font-size: 20px; margin: 0 0 12px; padding-bottom: 4px; border-bottom: 2px solid var(--line); }
+h3 { font-size: 16px; margin: 20px 0 6px; }
+p { margin: 0 0 10px; }
+.item { border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 6px; padding: 10px 14px; margin: 0 0 10px; break-inside: avoid; }
+.item.pass { border-left-color: var(--pass); } .item.warn { border-left-color: #d59a00; } .item.fail { border-left-color: var(--fail); }
+.item .head { display: flex; gap: 10px; align-items: baseline; }
+.item .title { font-weight: 600; }
+.badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 10px; background: var(--soft); color: var(--muted); white-space: nowrap; }
+.badge.pass { background: var(--pass-bg); color: var(--pass); } .badge.warn { background: var(--warn-bg); color: var(--warn); } .badge.fail { background: var(--fail-bg); color: var(--fail); }
+.item ul { margin: 6px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; }
+.item ul li { word-break: break-word; }
+.more { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 0 0 8px; }
+th, td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--line); word-break: break-word; }
+th { background: var(--soft); font-weight: 600; }
+tr.warn td { background: var(--warn-bg); } tr.fail td { background: var(--fail-bg); } tr.pass td { background: var(--pass-bg); }
+tr.muted td { color: var(--muted); }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 12px; }
+@media print {
+  body { font-size: 10pt; }
+  main { max-width: none; padding: 0; }
+  nav.toc { display: none; }
+  .tile, .item, .badge, tr.warn td, tr.fail td, tr.pass td, th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  tr { break-inside: avoid; }
+  h2 { break-after: avoid; }
+  .scroll { overflow: visible; }
+}
+@page { margin: 15mm; }
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>{{.Title}}</h1>
+<p class="subtitle">{{.Subtitle}}</p>
+</header>
+<dl class="facts">
+{{- range .Facts}}
+<dt>{{index . 0}}</dt><dd>{{index . 1}}</dd>
+{{- end}}
+</dl>
+<div class="tiles">
+{{- range .Tiles}}
+<div class="tile {{.Class}}"><div class="value">{{.Value}}</div><div class="label">{{.Label}}</div></div>
+{{- end}}
+</div>
+<nav class="toc">
+{{- range .Sections}}<a href="#{{.ID}}">{{.Title}}</a>{{end}}
+</nav>
+{{- range .Sections}}
+<section id="{{.ID}}">
+<h2>{{.Title}}</h2>
+{{- range .Intro}}
+<p>{{.}}</p>
+{{- end}}
+{{- range .Items}}
+<div class="item {{.Class}}">
+<div class="head">{{if .Badge}}<span class="badge {{.Class}}">{{.Badge}}</span>{{end}}{{if .Title}}<span class="title">{{.Title}}</span>{{end}}</div>
+{{- if .Text}}<p>{{.Text}}</p>{{end}}
+{{- if .Details}}
+<ul>
+{{- range .Details}}
+<li>{{.}}</li>
+{{- end}}
+</ul>
+{{- end}}
+{{- if .More}}<div class="more">{{.More}}</div>{{end}}
+</div>
+{{- end}}
+{{- range .Tables}}
+{{- if .Title}}<h3 id="{{$.Lang}}-{{.ID}}">{{.Title}}</h3>{{end}}
+{{- if .Intro}}<p>{{.Intro}}</p>{{end}}
+<div class="scroll">
+<table>
+<thead><tr>{{range .Columns}}<th>{{.}}</th>{{end}}</tr></thead>
+<tbody>
+{{- $classes := .Classes}}
+{{- range $i, $row := .Rows}}
+<tr{{with rowClass $classes $i}} class="{{.}}"{{end}}>{{range $row}}<td>{{.}}</td>{{end}}</tr>
+{{- end}}
+</tbody>
+</table>
+</div>
+{{- if .MoreText}}<p class="more">{{.MoreText}}</p>{{end}}
+{{- end}}
+</section>
+{{- end}}
+<footer>{{.Footer}}</footer>
+</main>
+</body>
+</html>

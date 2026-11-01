@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Kogge and Keycloak behind Caddy, which obtains or loads the TLS certificates. Same settings in
+# deploy/.env as for nginx (see nginx.conf). Caddy sets X-Forwarded-For and X-Forwarded-Proto itself.
+
+kogge.example.com {
+	reverse_proxy 127.0.0.1:8080 {
+		# Git, live updates and build log streams: pass data on immediately.
+		flush_interval -1
+	}
+}
+
+sso.example.com {
+	# Keycloak's administration stays off the public address (see nginx.conf).
+	@admin path /admin/*
+	respond @admin 404
+	reverse_proxy 127.0.0.1:8081
+}

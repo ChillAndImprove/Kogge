@@ -1,0 +1,222 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Kogge with PostgreSQL and Keycloak. First run: scripts/init-secrets.sh, then set KOGGE_PUBLIC_URL and
+# KOGGE_SSO_URL in .env and `docker compose up -d`. Profile dev: Mailpit, a mail catcher for development.
+#
+# The containers run without Linux capabilities and cannot gain privileges (KOGGE_NO_NEW_PRIVILEGES; the Docker snap
+# cannot start such containers: set it to false there); Kogge and the databases also run with read-only file systems
+# (Keycloak builds its configuration into its installation when it starts). They restart unless stopped, report
+# their health and rotate their logs. Resource limits are commented out below: size them for the installation.
+# deploy/scripts/smoke-test.sh tries the stack out from start to finish. Several nodes behind load
+# balancers: compose.ha.yaml.
+name: kogge
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: 20m, max-file: "5" }
+
+x-kogge: &kogge
+  image: ${KOGGE_IMAGE:-kogge:latest}
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:${KOGGE_NO_NEW_PRIVILEGES:-true}"]
+  # An init process reaps the processes that Git leaves behind when Kogge stops it, e.g. at a timeout.
+  init: true
+  logging: *logging
+  environment: &kogge-env
+    KOGGE_PUBLIC_URL: ${KOGGE_PUBLIC_URL:-http://localhost:8080}
+    KOGGE_DATABASE_URL_FILE: /run/secrets/db_app_url
+    KOGGE_MASTER_KEY_FILE: /run/secrets/master_key
+    KOGGE_DATA_DIR: /var/lib/kogge
+    # Whose X-Forwarded-For Kogge believes: by default the network's gateway, from which a reverse proxy on the
+    # Docker host connects (.env.example says when that is not safe). Empty trusts no proxy.
+    KOGGE_TRUSTED_PROXIES: ${KOGGE_TRUSTED_PROXIES-${KOGGE_GATEWAY:-172.31.252.1}}
+    KOGGE_DEFAULT_LOCALE: ${KOGGE_DEFAULT_LOCALE:-}
+    KOGGE_OIDC_ISSUER: ${KOGGE_SSO_URL:-http://localhost:8081}/realms/kogge
+    KOGGE_OIDC_INTERNAL_URL: http://keycloak:8080
+    KOGGE_OIDC_CLIENT_ID: kogge-web
+    KOGGE_OIDC_CLIENT_SECRET_FILE: /run/secrets/oidc_client_secret
+    # Directory sync through Keycloak's admin API (service account kogge-sync).
+    KOGGE_SYNC_CLIENT_SECRET_FILE: /run/secrets/sync_client_secret
+    KOGGE_OIDC_PROVIDER_NAME: ${KOGGE_SSO_NAME:-Single sign-on}
+    KOGGE_SMTP_HOST: ${KOGGE_SMTP_HOST:-}
+    KOGGE_SMTP_PORT: ${KOGGE_SMTP_PORT:-587}
+    KOGGE_SMTP_TLS: ${KOGGE_SMTP_TLS:-starttls}
+    KOGGE_SMTP_USERNAME: ${KOGGE_SMTP_USERNAME:-}
+    KOGGE_SMTP_PASSWORD: ${KOGGE_SMTP_PASSWORD:-}
+    KOGGE_SMTP_FROM: ${KOGGE_SMTP_FROM:-}
+    KOGGE_AUDIT_FORWARD_URL: ${KOGGE_AUDIT_FORWARD_URL:-}
+    KOGGE_AUDIT_FORWARD_AUTHORIZATION: ${KOGGE_AUDIT_FORWARD_AUTHORIZATION:-}
+    KOGGE_AUDIT_FORWARD_CA_FILE: ${KOGGE_AUDIT_FORWARD_CA_FILE:-}
+    KOGGE_AUDIT_FORWARD_CERT_FILE: ${KOGGE_AUDIT_FORWARD_CERT_FILE:-}
+    KOGGE_AUDIT_FORWARD_KEY_FILE: ${KOGGE_AUDIT_FORWARD_KEY_FILE:-}
+  secrets: [db_app_url, master_key, oidc_client_secret, sync_client_secret]
+  volumes:
+    - kogge-data:/var/lib/kogge
+    # Backups: `docker compose exec kogge kogge admin backup -dir /backups -keep 7`.
+    - ${KOGGE_BACKUP_DIR:-./backups}:/backups
+
+# The PostgreSQL servers run as the image's user postgres (70) from the start, so that they need no capabilities;
+# the sockets and temporary files are in memory.
+x-postgres: &postgres
+  image: postgres:18-alpine
+  restart: unless-stopped
+  user: "70:70"
+  read_only: true
+  tmpfs: [/tmp, /run/postgresql]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:${KOGGE_NO_NEW_PRIVILEGES:-true}"]
+  # Parallel queries share memory beyond Docker's default of 64 MB.
+  shm_size: 256m
+  logging: *logging
+  # Resource limits, e.g. for size S (4 CPUs, 8 GB):
+  # deploy:
+  #   resources:
+  #     limits: { cpus: "4", memory: 8G }
+
+services:
+  db:
+    <<: *postgres
+    environment:
+      POSTGRES_DB: kogge
+      POSTGRES_USER: kogge_owner
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_owner_password
+    secrets: [db_owner_password, db_app_password]
+    volumes:
+      - db-data:/var/lib/postgresql
+      - ./db/roles.sh:/docker-entrypoint-initdb.d/10-roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kogge_owner -d kogge"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  keycloak-db:
+    <<: *postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD_FILE: /run/secrets/keycloak_db_password
+    secrets: [keycloak_db_password]
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:${KOGGE_NO_NEW_PRIVILEGES:-true}"]
+    logging: *logging
+    command: ["start", "--import-realm"]
+    entrypoint: ["/bin/sh", "-c", "export KC_DB_PASSWORD=$$(cat /run/secrets/keycloak_db_password) KC_BOOTSTRAP_ADMIN_PASSWORD=$$(cat /run/secrets/keycloak_admin_password) KOGGE_OIDC_CLIENT_SECRET=$$(cat /run/secrets/oidc_client_secret) KOGGE_SYNC_CLIENT_SECRET=$$(cat /run/secrets/sync_client_secret); exec /opt/keycloak/bin/kc.sh \"$$@\"", "--"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_HOSTNAME: ${KOGGE_SSO_URL:-http://localhost:8081}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      # Keycloak believes forwarded headers from these addresses only (by default from a proxy on the Docker host).
+      KC_PROXY_TRUSTED_ADDRESSES: ${KOGGE_SSO_TRUSTED_PROXIES:-${KOGGE_GATEWAY:-172.31.252.1}}
+      # The health checks, on the management port 9000 inside the network.
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KOGGE_PUBLIC_URL: ${KOGGE_PUBLIC_URL:-http://localhost:8080}
+      KOGGE_INTERNAL_URL: http://kogge:8080
+    secrets: [keycloak_db_password, keycloak_admin_password, oidc_client_secret, sync_client_secret]
+    volumes:
+      - ./keycloak/kogge-realm.json:/opt/keycloak/data/import/kogge-realm.json:ro
+    ports: ["${KOGGE_SSO_PUBLISH:-127.0.0.1:8081}:8080"]
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q '\"status\": \"UP\"' <&3"]
+      interval: 10s
+      timeout: 5s
+      start_period: 3m
+      retries: 6
+    depends_on:
+      keycloak-db: { condition: service_healthy }
+    # Resource limits (Keycloak needs about 1 GB):
+    # deploy:
+    #   resources:
+    #     limits: { cpus: "2", memory: 2G }
+
+  migrate:
+    <<: *kogge
+    restart: "no"
+    command: ["migrate"]
+    environment:
+      <<: *kogge-env
+      KOGGE_DATABASE_URL_FILE: /run/secrets/db_owner_url
+    # Kogge reads all of its configuration, the secrets of single sign-on too, also to migrate.
+    secrets: [db_owner_url, master_key, oidc_client_secret, sync_client_secret]
+    depends_on:
+      db: { condition: service_healthy }
+
+  kogge:
+    <<: *kogge
+    command: ["serve"]
+    ports: ["${KOGGE_HTTP_PUBLISH:-127.0.0.1:8080}:8080", "${KOGGE_SSH_PUBLISH:-2222}:2222"]
+    environment:
+      <<: *kogge-env
+      KOGGE_ROLES: web,worker
+      # Prometheus metrics, reachable inside the Compose network only.
+      KOGGE_METRICS_ADDR: ":9090"
+      KOGGE_BOOTSTRAP_ADMIN_USERNAME: ${KOGGE_BOOTSTRAP_ADMIN_USERNAME:-}
+      KOGGE_BOOTSTRAP_ADMIN_PASSWORD: ${KOGGE_BOOTSTRAP_ADMIN_PASSWORD:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/readyz"]
+      interval: 10s
+      timeout: 5s
+      start_period: 1m
+      retries: 6
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    # Stopping, Kogge lets requests in progress (pushes, merges) finish for up to 30 seconds, then stops its jobs.
+    stop_grace_period: 45s
+    # Resource limits, e.g. for size S (4 CPUs, 8 GB):
+    # deploy:
+    #   resources:
+    #     limits: { cpus: "4", memory: 8G }
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    profiles: [dev]
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:${KOGGE_NO_NEW_PRIVILEGES:-true}"]
+    logging: *logging
+    ports: ["${KOGGE_MAIL_PUBLISH:-127.0.0.1:8025}:8025"]
+
+# The network has a fixed subnet, so that KOGGE_TRUSTED_PROXIES can name its gateway. Choose another one if it
+# collides with a network of the host (KOGGE_SUBNET and KOGGE_GATEWAY in .env).
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${KOGGE_SUBNET:-172.31.252.0/24}
+          gateway: ${KOGGE_GATEWAY:-172.31.252.1}
+
+volumes:
+  db-data:
+  keycloak-db-data:
+  kogge-data:
+
+secrets:
+  db_owner_password: { file: ./secrets/db_owner_password }
+  db_app_password: { file: ./secrets/db_app_password }
+  db_owner_url: { file: ./secrets/db_owner_url }
+  db_app_url: { file: ./secrets/db_app_url }
+  keycloak_db_password: { file: ./secrets/keycloak_db_password }
+  keycloak_admin_password: { file: ./secrets/keycloak_admin_password }
+  oidc_client_secret: { file: ./secrets/oidc_client_secret }
+  sync_client_secret: { file: ./secrets/sync_client_secret }
+  master_key: { file: ./secrets/master_key }

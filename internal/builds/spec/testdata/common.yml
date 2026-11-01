@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+# Included by example.yml as .kogge/common.yml: values for all jobs; example.yml overrides what it sets, too.
+variables:
+  GOFLAGS: -mod=mod
+  GOPROXY: https://proxy.golang.org
+defaults:
+  retry: 1

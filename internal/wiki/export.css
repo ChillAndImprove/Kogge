@@ -1,0 +1,262 @@
+/* SPDX-FileCopyrightText: 2026 The Kogge authors */
+/* SPDX-License-Identifier: EUPL-1.2 */
+
+/* The stylesheet of exported pages: HTML archives link to it, single pages carry it inline. */
+:root {
+  --text: #212529;
+  --dimmed: #6c757d;
+  --border: #dee2e6;
+  --link: #1971c2;
+  --code: #f6f8fa;
+}
+body {
+  margin: 0;
+  color: var(--text);
+  background: #fff;
+  font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Long words and addresses break where they would leave the page; tables keep their words whole. */
+  overflow-wrap: break-word;
+}
+main {
+  max-width: 54rem;
+  margin: 2rem auto;
+  padding: 0 1.25rem;
+}
+a {
+  color: var(--link);
+}
+.export-header {
+  padding: 0.6rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--dimmed);
+  font-size: 0.85rem;
+}
+.export-footer {
+  max-width: 54rem;
+  margin: 3rem auto 1.5rem;
+  padding: 0.8rem 1.25rem 0;
+  border-top: 1px solid var(--border);
+  color: var(--dimmed);
+  font-size: 0.8rem;
+}
+.page-title {
+  margin: 0 0 0.3rem;
+  font-size: 2rem;
+  line-height: 1.25;
+}
+.page-meta {
+  margin: 0 0 1.5rem;
+  color: var(--dimmed);
+  font-size: 0.85rem;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 1.6em 0 0.5em;
+  line-height: 1.3;
+}
+h5,
+h6 {
+  color: var(--dimmed);
+}
+p {
+  margin: 0 0 0.75em;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 1.75em 0;
+}
+blockquote {
+  margin: 1em 0;
+  padding: 0.1em 0 0.1em 1em;
+  border-left: 3px solid var(--border);
+  color: var(--dimmed);
+  font-style: italic;
+}
+code,
+pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+:not(pre) > code {
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  background: var(--code);
+  font-size: 0.9em;
+}
+pre {
+  margin: 0.9em 0;
+  padding: 0.8em 1em;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--code);
+  font-size: 0.85em;
+  line-height: 1.5;
+  tab-size: 4;
+}
+.code-title {
+  margin-top: 1em;
+  color: var(--dimmed);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.code-title + pre {
+  margin-top: 0.25em;
+}
+/* Formulas show their LaTeX: exports run no scripts to typeset it. */
+.math {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+.math.inline {
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  background: var(--code);
+  font-size: 0.9em;
+}
+.math.display {
+  margin: 0.9em 0;
+  padding: 0.6em 1em;
+  overflow-x: auto;
+  border-radius: 6px;
+  background: var(--code);
+  font-size: 0.85em;
+  line-height: 1.5;
+  text-align: center;
+  white-space: pre-wrap;
+}
+.table-frame {
+  margin: 1em 0;
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+td,
+th {
+  padding: 0.4em 0.65em;
+  border: 1px solid var(--border);
+  vertical-align: top;
+  text-align: left;
+}
+th {
+  background: #f1f3f5;
+}
+td > p:last-child,
+th > p:last-child,
+.panel > p:last-child,
+.column > :last-child {
+  margin-bottom: 0;
+}
+ul.task-list {
+  padding-left: 1.2em;
+  list-style: none;
+}
+.task-item input {
+  margin: 0 0.45em 0 0;
+}
+.task-item > p {
+  display: inline;
+}
+details {
+  margin: 1em 0;
+  padding: 0.4em 0.8em;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+summary {
+  font-weight: 600;
+}
+.panel {
+  margin: 1em 0;
+  padding: 0.7em 1em;
+  border-left: 4px solid #1c7ed6;
+  border-radius: 4px;
+  background: #e7f5ff;
+}
+.panel-note {
+  border-color: #7048e8;
+  background: #f3f0ff;
+}
+.panel-warning {
+  border-color: #f59f00;
+  background: #fff9db;
+}
+.panel-success {
+  border-color: #37b24d;
+  background: #ebfbee;
+}
+.panel-error {
+  border-color: #f03e3e;
+  background: #fff5f5;
+}
+.columns {
+  display: flex;
+  gap: 1.5rem;
+  margin: 1em 0;
+}
+.column {
+  min-width: 0;
+}
+@media (max-width: 40rem) {
+  .columns {
+    flex-direction: column;
+    gap: 0.75em;
+  }
+}
+.mention {
+  padding: 0 0.2em;
+  border-radius: 4px;
+  background: #e7f5ff;
+  color: var(--link);
+}
+.status {
+  padding: 0.05em 0.35em;
+  border-radius: 4px;
+  background: #e9ecef;
+  color: #495057;
+  font-size: 0.75em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.macro,
+.unsupported,
+.image-missing {
+  color: var(--dimmed);
+  font-style: italic;
+}
+nav.tree ul {
+  padding-left: 1.2em;
+}
+/* The palette of documents: text colours, highlights, statuses and table cells. */
+.color-gray { color: #495057; }
+.color-red { color: #c92a2a; }
+.color-orange { color: #d9480f; }
+.color-yellow { color: #b06a00; }
+.color-green { color: #2b8a3e; }
+.color-teal { color: #087f5b; }
+.color-blue { color: #1864ab; }
+.color-violet { color: #5f3dc4; }
+.color-pink { color: #a61e4d; }
+mark,
+.highlight-yellow { background: #fff3bf; color: inherit; }
+.highlight-gray, .bg-gray, .status-gray { background: #e9ecef; }
+.highlight-red, .bg-red, .status-red { background: #ffe3e3; }
+.highlight-orange, .bg-orange, .status-orange { background: #ffe8cc; }
+.bg-yellow, .status-yellow { background: #fff3bf; }
+.highlight-green, .bg-green, .status-green { background: #d3f9d8; }
+.highlight-teal, .bg-teal, .status-teal { background: #c3fae8; }
+.highlight-blue, .bg-blue, .status-blue { background: #d0ebff; }
+.highlight-violet, .bg-violet, .status-violet { background: #e5dbff; }
+.highlight-pink, .bg-pink, .status-pink { background: #ffdeeb; }
+.status-red { color: #c92a2a; }
+.status-green { color: #2b8a3e; }
+.status-blue { color: #1864ab; }

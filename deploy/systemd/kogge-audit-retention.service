@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Deletes the audit events older than their retention (Administration -> Settings), started by
+# kogge-audit-retention.timer. Kogge runs as kogge_app, for which the audit log is append-only, so it cannot do
+# this itself: this unit runs with the owner's database URL from /etc/kogge/kogge-owner.env.
+[Unit]
+Description=Kogge audit log retention
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=kogge
+Group=kogge
+EnvironmentFile=/etc/kogge/kogge.env
+EnvironmentFile=/etc/kogge/kogge-owner.env
+ExecStart=/usr/local/bin/kogge admin purge-audit
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/kogge

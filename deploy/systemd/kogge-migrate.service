@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# The database migrations, as the owner of the schema, before every start of kogge.service. The owner's database
+# URL is in /etc/kogge/kogge-owner.env (KOGGE_DATABASE_URL=…), readable by root only: systemd reads it for this unit,
+# and Kogge itself, which runs as kogge_app, never sees it.
+[Unit]
+Description=Kogge database migrations
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=kogge
+Group=kogge
+EnvironmentFile=/etc/kogge/kogge.env
+EnvironmentFile=/etc/kogge/kogge-owner.env
+ExecStart=/usr/local/bin/kogge migrate
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true

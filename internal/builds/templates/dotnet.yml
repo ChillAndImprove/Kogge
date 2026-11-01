@@ -1,0 +1,42 @@
+# .NET: restores, builds and tests the solution in Release configuration, and publishes the result into dist/
+# (kept for 30 days). The NuGet packages are kept between runs.
+version: 1
+
+defaults:
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  runs-on: [linux, docker]
+  timeout: 45m
+
+variables:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+
+pipelines:
+  ci:
+    name: Build and test
+    on:
+      push:
+        branches: ["**"]
+        tags: ["v*"]
+      pull-request:
+        target-branches: ["**"]
+      manual: true
+    stages:
+      - name: Build
+        jobs:
+          - name: build
+            cache:
+              - key: nuget
+                paths: [.nuget/packages]
+            steps:
+              - name: Build and test
+                run: |
+                  export NUGET_PACKAGES="$PWD/.nuget/packages"
+                  dotnet restore
+                  dotnet build --no-restore --configuration Release
+                  dotnet test --no-build --configuration Release
+                  dotnet publish --no-build --configuration Release --output dist
+            artifacts:
+              - name: dist
+                paths: ["dist/**"]
+                expire-in: 30d

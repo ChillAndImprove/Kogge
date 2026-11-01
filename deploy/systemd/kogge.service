@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Kogge as a systemd service. Configuration in /etc/kogge/kogge.env (KOGGE_* variables), with the database URL of
+# the role kogge_app, which cannot change the audit log (kogge admin init-database sets it up). Each start runs
+# kogge-migrate.service first, which migrates the database as the owner of the schema.
+[Unit]
+Description=Kogge — issues, wiki, code and builds
+After=network-online.target postgresql.service kogge-migrate.service
+Wants=network-online.target
+Requires=kogge-migrate.service
+
+[Service]
+Type=simple
+User=kogge
+Group=kogge
+EnvironmentFile=/etc/kogge/kogge.env
+ExecStart=/usr/local/bin/kogge serve
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/kogge
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

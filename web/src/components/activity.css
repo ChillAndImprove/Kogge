@@ -1,0 +1,72 @@
+/* SPDX-FileCopyrightText: 2026 The Kogge authors */
+/* SPDX-License-Identifier: EUPL-1.2 */
+
+/* Activity streams (components/ActivityStream.tsx): lines in a 12 px rhythm (8 px when compact), grouped by day
+   under small headings. */
+
+.kogge-activity-stream {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kogge-activity-entry {
+  display: flex;
+  gap: var(--mantine-spacing-sm);
+  align-items: flex-start;
+  padding: calc(var(--mantine-spacing-sm) / 2) 0;
+}
+.kogge-activity-stream[data-density='compact'] .kogge-activity-entry {
+  gap: var(--mantine-spacing-xs);
+  padding: calc(var(--mantine-spacing-xs) / 2) 0;
+}
+
+.kogge-activity-day {
+  margin: 0;
+  padding: var(--mantine-spacing-md) 0 calc(var(--mantine-spacing-xs) / 2);
+  font-size: var(--mantine-font-size-xs);
+  line-height: var(--mantine-line-height-xs);
+  font-weight: 600;
+  color: var(--mantine-color-dimmed);
+}
+.kogge-activity-item:first-child .kogge-activity-day {
+  padding-top: 0;
+}
+.kogge-activity-stream[data-density='compact'] .kogge-activity-day {
+  padding-top: var(--mantine-spacing-xs);
+}
+
+/* The person, the product or the state in front of a line, with a state dot for deployments. */
+.kogge-activity-lead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.kogge-activity-dot {
+  position: absolute;
+  right: calc(var(--mantine-spacing-xs) / -2);
+  bottom: calc(var(--mantine-spacing-xs) / -2);
+  display: flex;
+  border-radius: 50%;
+  background: var(--mantine-color-body);
+}
+
+/* Without the person in front (on the person's own page), the line begins with its verb. */
+.kogge-activity-self::first-letter {
+  text-transform: uppercase;
+}
+
+/* The beginning of a comment or a note, set off like a quotation. */
+.kogge-activity-quote {
+  border-left: 2px solid var(--mantine-color-default-border);
+  padding-left: var(--mantine-spacing-xs);
+  overflow-wrap: anywhere;
+}
+
+.kogge-activity-sha {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  flex: 0 0 auto;
+}

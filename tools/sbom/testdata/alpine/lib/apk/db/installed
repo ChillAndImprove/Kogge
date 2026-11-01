@@ -1,0 +1,576 @@
+C:Q1KfmXSO6h/+AfcLNAJNxFxG0hH40=
+P:alpine-baselayout
+V:3.7.0-r0
+A:x86_64
+S:8237
+I:6441
+T:Alpine base dir structure and init scripts
+U:https://git.alpinelinux.org/cgit/aports/tree/main/alpine-baselayout
+L:GPL-2.0-only
+o:alpine-baselayout
+t:1742908603
+c:540d8477019887cc6534152e92c3b12676e35d7b
+D:alpine-baselayout-data=3.7.0-r0 /bin/sh
+q:1000
+
+C:Q1c/XvZfgzOheEEC35c8B21afVtf4=
+P:alpine-baselayout-data
+V:3.7.0-r0
+A:x86_64
+S:10788
+I:19034
+T:Alpine base dir structure and init scripts
+U:https://git.alpinelinux.org/cgit/aports/tree/main/alpine-baselayout
+L:GPL-2.0-only
+o:alpine-baselayout
+t:1742908603
+c:540d8477019887cc6534152e92c3b12676e35d7b
+r:alpine-baselayout
+q:1000
+
+C:Q1sXXkgUTrrQPWuhHUWyWq/C3jEME=
+P:alpine-keys
+V:2.5-r0
+A:x86_64
+S:13390
+I:14212
+T:Public keys for Alpine Linux packages
+U:https://alpinelinux.org
+L:MIT
+o:alpine-keys
+t:1723638620
+c:6d473fb38effb2389f567b29fb7eb27039b3a279
+r:alpine-base
+
+C:Q17bBx8CJiTzF0sSDtEUKEM0xieEs=
+P:alpine-release
+V:3.22.6-r0
+A:x86_64
+S:2091
+I:343
+T:Alpine release data
+U:https://alpinelinux.org
+L:MIT
+o:alpine-base
+t:1789666340
+c:319bd320057744bdf429efb85e9ded1822be2240
+D:alpine-keys
+r:alpine-baselayout
+
+C:Q18I7lWn+QFS+hg1rizHjyP1PAAVQ=
+P:apk-tools
+V:2.14.12-r0
+A:x86_64
+S:34579
+I:69648
+T:Alpine Package Keeper - package manager for alpine
+U:https://gitlab.alpinelinux.org/alpine/apk-tools
+L:GPL-2.0-only
+o:apk-tools
+t:1789573185
+c:a53adea12086d36717300ea195ede9ad75f98e1f
+D:musl>=1.2.3_git20230424 libcrypto3>=3.5 ca-certificates-bundle so:libapk.so.2.14.10 so:libc.musl-x86_64.so.1 so:libcrypto.so.3 so:libz.so.1
+p:cmd:apk=2.14.12-r0
+
+C:Q1iJ+gLF983ZAoPOK2iVnpxE5d+/I=
+P:brotli-libs
+V:1.1.0-r2
+A:x86_64
+S:414597
+I:935432
+T:Generic lossless compressor (libraries)
+U:https://github.com/google/brotli
+L:MIT
+o:brotli
+t:1730669024
+c:9c7716c2221405ce7810ba3eaaa1f62d2e646c20
+D:so:libc.musl-x86_64.so.1
+p:so:libbrotlicommon.so.1=1.1.0 so:libbrotlidec.so.1=1.1.0 so:libbrotlienc.so.1=1.1.0
+
+C:Q1Pp11KIKAs8SS6R8w4SbCQA0XAbM=
+P:busybox
+V:1.37.0-r20
+A:x86_64
+S:506116
+I:817380
+T:Size optimized toolbox of many common UNIX utilities
+U:https://busybox.net/
+L:GPL-2.0-only
+o:busybox
+t:1763764856
+c:2e97d754a30d558f15524b8e422303c8a96832df
+D:so:libc.musl-x86_64.so.1
+p:cmd:busybox=1.37.0-r20
+r:busybox-initscripts
+
+C:Q1rNSVswVIMaejMTeqWiumGToIotI=
+P:busybox-binsh
+V:1.37.0-r20
+A:x86_64
+S:1566
+I:1
+T:busybox ash /bin/sh
+U:https://busybox.net/
+L:GPL-2.0-only
+o:busybox
+t:1763764856
+c:2e97d754a30d558f15524b8e422303c8a96832df
+k:100
+D:busybox=1.37.0-r20
+p:/bin/sh cmd:sh=1.37.0-r20
+r:busybox-initscripts
+
+C:Q1/D5MqJk6/qwKVGpFBl8u0w88IZU=
+P:c-ares
+V:1.34.8-r0
+A:x86_64
+S:109507
+I:243416
+T:Asynchronous DNS/names resolver library
+U:https://c-ares.org/
+L:MIT
+o:c-ares
+t:1783541984
+c:3366070614dbbf4e22a9e560c90eeb934752a2cd
+D:so:libc.musl-x86_64.so.1
+p:so:libcares.so.2=2.19.7
+
+C:Q1cnlzAqI1x1fzG2QTEGcyZriYoBk=
+P:ca-certificates
+V:20260909-r0
+A:x86_64
+S:130913
+I:215307
+T:Common CA certificates PEM files from Mozilla
+U:https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/
+L:MPL-2.0 AND MIT
+o:ca-certificates
+t:1789650917
+c:19b56f610f4f0055f155e99e1666cddcd000d01c
+D:/bin/sh so:libc.musl-x86_64.so.1 so:libcrypto.so.3
+p:cmd:c_rehash=20260909-r0 cmd:update-ca-certificates=20260909-r0
+r:openssl
+
+C:Q1ZPSDTYT+LwK9rxFn+z8AgUgFyms=
+P:ca-certificates-bundle
+V:20260909-r0
+A:x86_64
+S:108541
+I:181724
+T:Pre generated bundle of Mozilla certificates
+U:https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/
+L:MPL-2.0 AND MIT
+o:ca-certificates
+t:1789650917
+c:19b56f610f4f0055f155e99e1666cddcd000d01c
+p:ca-certificates-cacert=20260909-r0
+r:libressl2.7-libcrypto libcrypto1.1
+
+C:Q1NLuhpk/W3pPr3aWRHBI46x/QydQ=
+P:docker-cli
+V:28.3.3-r5
+A:x86_64
+S:10447741
+I:32264568
+T:Docker CLI
+U:https://www.docker.io/
+L:Apache-2.0
+o:docker
+t:1768509320
+c:1bc8dfc63cf800c7eb2516197fd0b13ff862a073
+D:ca-certificates so:libc.musl-x86_64.so.1
+p:cmd:docker=28.3.3-r5
+
+C:Q14Au4Rf/McykusEgS2lNv61JSoLI=
+P:git
+V:2.49.1-r0
+A:x86_64
+S:3411448
+I:6726397
+T:Distributed version control system
+U:https://www.git-scm.com/
+L:GPL-2.0-only
+o:git
+t:1752048927
+c:d896b70b77339c50bea678a19895df6331872d82
+D:so:libc.musl-x86_64.so.1 so:libcurl.so.4 so:libexpat.so.1 so:libpcre2-8.so.0 so:libz.so.1
+p:cmd:git-receive-pack=2.49.1-r0 cmd:git-shell=2.49.1-r0 cmd:git-upload-archive=2.49.1-r0 cmd:git-upload-pack=2.49.1-r0 cmd:git=2.49.1-r0
+
+C:Q1+wiLRsp1so4c/YFRgrQfxdguo8w=
+P:git-init-template
+V:2.49.1-r0
+A:x86_64
+S:10365
+I:21414
+T:Git init template directory
+U:https://www.git-scm.com/
+L:GPL-2.0-only
+o:git
+t:1752048927
+c:d896b70b77339c50bea678a19895df6331872d82
+i:git=2.49.1-r0
+
+C:Q1Yua8bC4KwlkKwWX82Po/oJ6KC6U=
+P:git-lfs
+V:3.6.0-r10
+A:x86_64
+S:5321844
+I:14259032
+T:Git extension for versioning large files
+U:https://git-lfs.github.io/
+L:MIT
+o:git-lfs
+t:1768509320
+c:1bc8dfc63cf800c7eb2516197fd0b13ff862a073
+D:git /bin/sh so:libc.musl-x86_64.so.1
+p:cmd:git-lfs=3.6.0-r10
+
+C:Q1ovar9GIDe78Dafw+78vlQ0+wyl8=
+P:libapk2
+V:2.14.12-r0
+A:x86_64
+S:89001
+I:183992
+T:Alpine Package Keeper - package manager for alpine
+U:https://gitlab.alpinelinux.org/alpine/apk-tools
+L:GPL-2.0-only
+o:apk-tools
+t:1789573185
+c:a53adea12086d36717300ea195ede9ad75f98e1f
+D:musl>=1.2.3_git20230424 libcrypto3>=3.5 ca-certificates-bundle so:libc.musl-x86_64.so.1 so:libcrypto.so.3 so:libssl.so.3 so:libz.so.1
+p:so:libapk.so.2.14.10=2.14.10
+
+C:Q1kLI/t7BIk7nzs6GS0P12dqVEIok=
+P:libcrypto3
+V:3.5.8-r0
+A:x86_64
+S:1984631
+I:5226070
+T:Crypto library from openssl
+U:https://www.openssl.org/
+L:Apache-2.0
+o:openssl
+t:1787691685
+c:1b80b7c3bf5ba3f13eb748ae953d9215d5a4bb62
+k:100
+D:so:libc.musl-x86_64.so.1
+p:so:libcrypto.so.3=3
+r:libcrypto1.1
+
+C:Q12MNR/YB3IA7yMNN0qR8GjHZyTds=
+P:libcurl
+V:8.14.1-r3
+A:x86_64
+S:330915
+I:685499
+T:The multiprotocol file transfer library
+U:https://curl.se/
+L:curl
+o:curl
+t:1784005653
+c:60fa9cebe718c0c5b9b6b2ae809f887dc344f0d0
+D:ca-certificates-bundle so:libbrotlidec.so.1 so:libc.musl-x86_64.so.1 so:libcares.so.2 so:libcrypto.so.3 so:libidn2.so.0 so:libnghttp2.so.14 so:libpsl.so.5 so:libssl.so.3 so:libz.so.1 so:libzstd.so.1
+p:so:libcurl.so.4=4.8.0
+r:wcurl
+
+C:Q1t9DEweADS2blO3cMVTPIxl66NGQ=
+P:libedit
+V:20250104.3.1-r1
+A:x86_64
+S:76926
+I:178016
+T:BSD line editing library
+U:https://www.thrysoee.dk/editline
+L:BSD-3-Clause
+o:libedit
+t:1747304947
+c:be0833caee3020f089f02c5d7223e971a9a11ffb
+D:so:libc.musl-x86_64.so.1 so:libncursesw.so.6
+p:so:libedit.so.0=0.0.75
+
+C:Q1PBWjkqKE37mv1W5GMmZoE3me4d8=
+P:libexpat
+V:2.8.5-r0
+A:x86_64
+S:61426
+I:136896
+T:XML Parser library written in C (libraries)
+U:https://libexpat.github.io/
+L:MIT
+o:expat
+t:1790203299
+c:4ffd5cf4f348fb2b9c0200fc2a815d5e3904e8e2
+D:so:libc.musl-x86_64.so.1
+p:so:libexpat.so.1=1.12.5
+
+C:Q14uk7JHGHoVohZPS35fSnJaO11Ig=
+P:libidn2
+V:2.3.7-r0
+A:x86_64
+S:104435
+I:198632
+T:Encode/Decode library for internationalized domain names
+U:https://www.gnu.org/software/libidn#libidn2
+L:GPL-2.0-or-later OR LGPL-3.0-or-later
+o:libidn2
+t:1706477859
+c:1cdcdd0eccbee1f60078417a7aaf83f92f6e6754
+D:so:libc.musl-x86_64.so.1 so:libunistring.so.5
+p:so:libidn2.so.0=0.4.0
+
+C:Q1QpAfFSg5nWfgfhQIXuU/GjabJAo=
+P:libncursesw
+V:6.5_p20250503-r0
+A:x86_64
+S:159016
+I:342888
+T:Console display library (libncursesw)
+U:https://invisible-island.net/ncurses/
+L:X11
+o:ncurses
+t:1746535506
+c:3fefbe8dda8b3e85458edb190e2f3a69ad16035c
+D:ncurses-terminfo-base=6.5_p20250503-r0 so:libc.musl-x86_64.so.1
+p:so:libncursesw.so.6=6.5
+
+C:Q1NRrhI+v3BfCQxD/Hk5ltui+iHrs=
+P:libpsl
+V:0.21.5-r3
+A:x86_64
+S:54710
+I:75536
+T:C library for the Publix Suffix List
+U:https://rockdaboot.github.io/libpsl
+L:MIT
+o:libpsl
+t:1735217780
+c:4cf07ce428e77d8bca8e45258ba1937db8b18661
+D:so:libc.musl-x86_64.so.1 so:libidn2.so.0 so:libunistring.so.5
+p:so:libpsl.so.5=5.3.5
+
+C:Q1tVP5xy7R2xWxYuF/fPljbaWFu2M=
+P:libssl3
+V:3.5.8-r0
+A:x86_64
+S:381010
+I:843640
+T:SSL shared libraries
+U:https://www.openssl.org/
+L:Apache-2.0
+o:openssl
+t:1787691685
+c:1b80b7c3bf5ba3f13eb748ae953d9215d5a4bb62
+k:100
+D:libcrypto3=3.5.8-r0 so:libc.musl-x86_64.so.1 so:libcrypto.so.3
+p:so:libssl.so.3=3
+
+C:Q1lHLZqytjSmGtXtybR1T9seNL3vk=
+P:libunistring
+V:1.3-r0
+A:x86_64
+S:733791
+I:1902400
+T:Library for manipulating Unicode strings and C strings
+U:https://www.gnu.org/software/libunistring/
+L:GPL-2.0-or-later OR LGPL-3.0-or-later
+o:libunistring
+t:1735626071
+c:22200a467cea998010743cc288889dbde0496d4a
+D:so:libc.musl-x86_64.so.1
+p:so:libunistring.so.5=5.2.0
+
+C:Q188yFTG2t/rUxNtjQPwTR/5h2m/k=
+P:musl
+V:1.2.5-r12
+A:x86_64
+S:412252
+I:662120
+T:the musl c library (libc) implementation
+U:https://musl.libc.org/
+L:MIT
+o:musl
+t:1775835372
+c:1546f29a1fd233db15464ce000b6247ed71b31e7
+p:so:libc.musl-x86_64.so.1=1
+
+C:Q1TxK/ogeA6EZXmssVGFPo2xgLqRk=
+P:musl-utils
+V:1.2.5-r12
+A:x86_64
+S:13652
+I:55421
+T:the musl c library (libc) implementation
+U:https://musl.libc.org/
+L:MIT AND BSD-2-Clause AND GPL-2.0-or-later
+o:musl
+t:1775835372
+c:1546f29a1fd233db15464ce000b6247ed71b31e7
+D:scanelf so:libc.musl-x86_64.so.1
+p:libc-utils=1.2.5-r12 cmd:getconf=1.2.5-r12 cmd:getent=1.2.5-r12 cmd:iconv=1.2.5-r12 cmd:ldconfig=1.2.5-r12 cmd:ldd=1.2.5-r12
+r:libiconv
+
+C:Q1/qLMCI8C3y/rXacY5wEjZH8O+Pc=
+P:ncurses-terminfo-base
+V:6.5_p20250503-r0
+A:x86_64
+S:21767
+I:101107
+T:Descriptions of common terminals
+U:https://invisible-island.net/ncurses/
+L:X11
+o:ncurses
+t:1746535506
+c:3fefbe8dda8b3e85458edb190e2f3a69ad16035c
+
+C:Q1fwuEkacafZMCRajgY76tWWnN+tk=
+P:nghttp2-libs
+V:1.69.0-r0
+A:x86_64
+S:63198
+I:136992
+T:HTTP/2 C client, server and proxy (libraries)
+U:https://nghttp2.org
+L:MIT
+o:nghttp2
+t:1777914586
+c:87de39802b2c34c9a7c62a52b3e39e05af1c974e
+D:so:libc.musl-x86_64.so.1
+p:so:libnghttp2.so.14=14.29.4
+
+C:Q1avUaFzmhtfrUZnDhNFwMeR0NmvQ=
+P:openssh-client-common
+V:10.0_p1-r10
+A:x86_64
+S:864191
+I:2564159
+T:OpenBSD's SSH client common files
+U:https://www.openssh.com/portable.html
+L:SSH-OpenSSH
+o:openssh
+t:1764230159
+c:bef528746a2df2eb398583b712bd749bd9c977d4
+D:libcrypto3>=3.1.0 so:libc.musl-x86_64.so.1 so:libcrypto.so.3 so:libedit.so.0 so:libz.so.1
+p:cmd:findssl.sh=10.0_p1-r10 cmd:scp=10.0_p1-r10 cmd:sftp=10.0_p1-r10 cmd:ssh-add=10.0_p1-r10 cmd:ssh-agent=10.0_p1-r10 cmd:ssh-copy-id=10.0_p1-r10 cmd:ssh-keyscan=10.0_p1-r10 cmd:ssh-pkcs11-helper=10.0_p1-r10
+
+C:Q1mvEPo9BHEjTq7n9ZnEXI2mysF98=
+P:openssh-client-default
+V:10.0_p1-r10
+A:x86_64
+S:384868
+I:850752
+T:OpenBSD's SSH client
+U:https://www.openssh.com/portable.html
+L:SSH-OpenSSH
+o:openssh
+t:1764230159
+c:bef528746a2df2eb398583b712bd749bd9c977d4
+k:2
+D:openssh-keygen=10.0_p1-r10 openssh-client-common=10.0_p1-r10 !openssh-client-krb5 so:libc.musl-x86_64.so.1 so:libcrypto.so.3 so:libz.so.1
+p:openssh-client=10.0_p1-r10 cmd:ssh=10.0_p1-r10
+
+C:Q1aHKFm/zMmAD5eO/v3IqxoRzvdAU=
+P:openssh-keygen
+V:10.0_p1-r10
+A:x86_64
+S:207013
+I:481576
+T:ssh helper program for generating keys
+U:https://www.openssh.com/portable.html
+L:SSH-OpenSSH
+o:openssh
+t:1764230159
+c:bef528746a2df2eb398583b712bd749bd9c977d4
+D:libcrypto3>=3.1.0 so:libc.musl-x86_64.so.1 so:libcrypto.so.3
+p:cmd:ssh-keygen=10.0_p1-r10
+
+C:Q1gjdyS9xQxXwW5k6w1SLYWrxQDRA=
+P:pcre2
+V:10.46-r0
+A:x86_64
+S:314267
+I:786080
+T:Perl-compatible regular expression library
+U:https://pcre.org/
+L:BSD-3-Clause
+o:pcre2
+t:1760871188
+c:a22c8c27a78e00ea7cf03e09c6033a6336ee22a2
+D:so:libc.musl-x86_64.so.1
+p:so:libpcre2-8.so.0=0.14.0 so:libpcre2-posix.so.3=3.0.6
+
+C:Q1vW3RyCDUdrzfjuOPADvPKnMyOxM=
+P:scanelf
+V:1.3.8-r1
+A:x86_64
+S:32500
+I:67504
+T:Scan ELF binaries for stuff
+U:https://wiki.gentoo.org/wiki/Hardened/PaX_Utilities
+L:GPL-2.0-only
+o:pax-utils
+t:1737412397
+c:9818c555f344e3085d0dd1f3d917d8e23e244cb1
+D:so:libc.musl-x86_64.so.1
+p:cmd:scanelf=1.3.8-r1
+r:pax-utils
+
+C:Q1i9+6q0yZpdd4RMqYmXHIcWESZ4Q=
+P:ssl_client
+V:1.37.0-r20
+A:x86_64
+S:4686
+I:14384
+T:External ssl_client for busybox wget
+U:https://busybox.net/
+L:GPL-2.0-only
+o:busybox
+t:1763764856
+c:2e97d754a30d558f15524b8e422303c8a96832df
+D:so:libc.musl-x86_64.so.1 so:libcrypto.so.3 so:libssl.so.3
+p:cmd:ssl_client=1.37.0-r20
+i:busybox=1.37.0-r20 libssl3
+r:busybox-initscripts
+
+C:Q1cGFtqrGB1WUCcD6yFL2fC0bVVTc=
+P:tzdata
+V:2026e-r0
+A:x86_64
+S:190893
+I:452230
+T:Timezone data
+U:https://www.iana.org/time-zones
+L:Public-Domain
+o:tzdata
+t:1791290586
+c:b108a146c5784aebc105d9b871bbcb5b19126c89
+
+C:Q1T9Ki+yEmHUsjMwFXFo/rDFYopMY=
+P:zlib
+V:1.3.2-r0
+A:x86_64
+S:55441
+I:104280
+T:A compression/decompression Library
+U:https://zlib.net/
+L:Zlib
+o:zlib
+t:1776179676
+c:0276ab73299b3fd158361983f2f4ba573e0f7526
+D:so:libc.musl-x86_64.so.1
+p:so:libz.so.1=1.3.2
+
+C:Q1UMgxErVhn0jTbWkZCky3xx8Vx9I=
+P:zstd-libs
+V:1.5.7-r0
+A:x86_64
+S:377569
+I:718528
+T:Zstandard - Fast real-time compression algorithm (libraries)
+U:https://facebook.github.io/zstd/
+L:BSD-3-Clause OR GPL-2.0-or-later
+o:zstd
+t:1740423096
+c:fc7fd35c7bf99156ae31962877c074f679f45b73
+D:so:libc.musl-x86_64.so.1
+p:so:libzstd.so.1=1.5.7
+

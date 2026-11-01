@@ -1,0 +1,59 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+# The preview on GitHub Pages: the web application with the recorded sample content (web/showcase/recording.json),
+# running without a server. Turn it on under Settings → Pages → Source: GitHub Actions. It runs only while the
+# repository is public, as GitHub Pages of private repositories needs a paid plan.
+name: Preview
+
+on:
+  push:
+    branches: [main]
+    paths: ["web/**", ".github/workflows/preview.yml"]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Build the preview
+        working-directory: web
+        # The preview's Sponsor button appears only with an address (Settings → Variables: KOGGE_SPONSOR_URL).
+        env:
+          VITE_KOGGE_SPONSOR_URL: ${{ vars.KOGGE_SPONSOR_URL }}
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build:showcase
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: web/dist-showcase
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

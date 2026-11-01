@@ -1,0 +1,39 @@
+# Java or Kotlin with Gradle: builds and tests the project with `gradle build` (the wrapper of the repository if
+# there is one); Kogge shows the test reports and keeps the jars for 30 days. Gradle's caches are kept between
+# runs.
+version: 1
+
+defaults:
+  image: docker.io/library/gradle:8-jdk21
+  runs-on: [linux, docker]
+  timeout: 45m
+
+pipelines:
+  ci:
+    name: Build and test
+    on:
+      push:
+        branches: ["**"]
+        tags: ["v*"]
+      pull-request:
+        target-branches: ["**"]
+      manual: true
+    stages:
+      - name: Build
+        jobs:
+          - name: build
+            cache:
+              - key: gradle
+                key-files: [build.gradle, build.gradle.kts, settings.gradle, settings.gradle.kts]
+                paths: [.gradle-home/caches, .gradle-home/wrapper]
+            steps:
+              - name: Build
+                run: |
+                  if [ -x ./gradlew ]; then GRADLE=./gradlew; else GRADLE=gradle; fi
+                  $GRADLE --no-daemon --gradle-user-home .gradle-home build
+            reports:
+              junit: ["**/build/test-results/test/*.xml"]
+            artifacts:
+              - name: jars
+                paths: ["build/libs/*.jar", "*/build/libs/*.jar"]
+                expire-in: 30d

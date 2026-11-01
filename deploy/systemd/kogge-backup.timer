@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Daily backup of Kogge at 02:30. Enable with `systemctl enable --now kogge-backup.timer`.
+[Unit]
+Description=Daily Kogge backup
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+RandomizedDelaySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

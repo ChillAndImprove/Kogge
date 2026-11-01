@@ -1,0 +1,51 @@
+# Container image: builds the image of the Dockerfile on every pull request, and on the main branch and on tags
+# also pushes it to your registry, tagged with the commit (and the tag). It runs on agents with Docker (label
+# docker) in their shell. Set these variables of the repository in Helling (Settings → Variables):
+#   REGISTRY_IMAGE     the image without tag, e.g. registry.example.com/team/app
+#   REGISTRY_USER      the registry account
+#   REGISTRY_PASSWORD  its password or token — secret, protected
+version: 1
+
+defaults:
+  runs-on: [linux, docker]
+  timeout: 30m
+
+pipelines:
+  image:
+    name: Container image
+    on:
+      push:
+        branches: [main]
+        tags: ["v*"]
+      pull-request:
+        target-branches: ["**"]
+      manual: true
+    stages:
+      - name: Build
+        jobs:
+          - name: build
+            only:
+              events: [pull-request]
+            steps:
+              - name: Build the image
+                run: docker build --pull --tag "kogge-check:$KOGGE_COMMIT" .
+              - name: Remove it
+                run: docker image rm "kogge-check:$KOGGE_COMMIT"
+                when: always
+          - name: publish
+            except:
+              events: [pull-request]
+            steps:
+              - name: Build the image
+                run: docker build --pull --tag "$REGISTRY_IMAGE:$KOGGE_COMMIT" .
+              - name: Push it
+                run: |
+                  echo "$REGISTRY_PASSWORD" | docker login --username "$REGISTRY_USER" --password-stdin "${REGISTRY_IMAGE%%/*}"
+                  docker push "$REGISTRY_IMAGE:$KOGGE_COMMIT"
+                  if [ -n "$KOGGE_TAG" ]; then
+                    docker tag "$REGISTRY_IMAGE:$KOGGE_COMMIT" "$REGISTRY_IMAGE:$KOGGE_TAG"
+                    docker push "$REGISTRY_IMAGE:$KOGGE_TAG"
+                  fi
+              - name: Sign out
+                run: docker logout "${REGISTRY_IMAGE%%/*}"
+                when: always

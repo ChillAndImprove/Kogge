@@ -1,0 +1,140 @@
+/* SPDX-FileCopyrightText: 2026 The Kogge authors */
+/* SPDX-License-Identifier: EUPL-1.2 */
+
+/* Syntax highlighting of the server's highlighter (chroma's short token classes) for files and diffs (.kogge-code)
+   and for code blocks of documents (.kogge-hl), in light and dark mode. */
+
+.kogge-code,
+.kogge-hl {
+  --hl-keyword: #cf222e;
+  --hl-type: #953800;
+  --hl-function: #8250df;
+  --hl-string: #0a3069;
+  --hl-number: #0550ae;
+  --hl-comment: #6e7781;
+  --hl-name: #24292f;
+  --hl-constant: #0550ae;
+  --hl-tag: #116329;
+  --hl-attr: #0550ae;
+  --hl-add-bg: #e6ffec;
+  --hl-add-num: #ccffd8;
+  --hl-del-bg: #ffebe9;
+  --hl-del-num: #ffd7d5;
+  --hl-add-word: #a6ecb8;
+  --hl-del-word: #ffc4bf;
+  --hl-hunk-bg: #ddf4ff;
+  --hl-line-hover: rgba(234, 238, 242, 0.6);
+}
+
+[data-mantine-color-scheme='dark'] .kogge-code,
+[data-mantine-color-scheme='dark'] .kogge-hl {
+  --hl-keyword: #ff7b72;
+  --hl-type: #ffa657;
+  --hl-function: #d2a8ff;
+  --hl-string: #a5d6ff;
+  --hl-number: #79c0ff;
+  --hl-comment: #8b949e;
+  --hl-name: #e6edf3;
+  --hl-constant: #79c0ff;
+  --hl-tag: #7ee787;
+  --hl-attr: #79c0ff;
+  --hl-add-bg: rgba(46, 160, 67, 0.15);
+  --hl-add-num: rgba(63, 185, 80, 0.3);
+  --hl-del-bg: rgba(248, 81, 73, 0.15);
+  --hl-del-num: rgba(248, 81, 73, 0.3);
+  --hl-add-word: rgba(46, 160, 67, 0.45);
+  --hl-del-word: rgba(248, 81, 73, 0.45);
+  --hl-hunk-bg: rgba(56, 139, 253, 0.15);
+  --hl-line-hover: rgba(110, 118, 129, 0.15);
+}
+
+/* Token classes (chroma short names). */
+:is(.kogge-code, .kogge-hl) .k,
+:is(.kogge-code, .kogge-hl) .kc,
+:is(.kogge-code, .kogge-hl) .kd,
+:is(.kogge-code, .kogge-hl) .kn,
+:is(.kogge-code, .kogge-hl) .kp,
+:is(.kogge-code, .kogge-hl) .kr,
+:is(.kogge-code, .kogge-hl) .ow {
+  color: var(--hl-keyword);
+}
+:is(.kogge-code, .kogge-hl) .kt,
+:is(.kogge-code, .kogge-hl) .nc,
+:is(.kogge-code, .kogge-hl) .ne {
+  color: var(--hl-type);
+}
+:is(.kogge-code, .kogge-hl) .nf,
+:is(.kogge-code, .kogge-hl) .fm,
+:is(.kogge-code, .kogge-hl) .nd {
+  color: var(--hl-function);
+}
+:is(.kogge-code, .kogge-hl) .s,
+:is(.kogge-code, .kogge-hl) .sa,
+:is(.kogge-code, .kogge-hl) .sb,
+:is(.kogge-code, .kogge-hl) .sc,
+:is(.kogge-code, .kogge-hl) .dl,
+:is(.kogge-code, .kogge-hl) .sd,
+:is(.kogge-code, .kogge-hl) .s2,
+:is(.kogge-code, .kogge-hl) .se,
+:is(.kogge-code, .kogge-hl) .sh,
+:is(.kogge-code, .kogge-hl) .si,
+:is(.kogge-code, .kogge-hl) .sx,
+:is(.kogge-code, .kogge-hl) .sr,
+:is(.kogge-code, .kogge-hl) .s1,
+:is(.kogge-code, .kogge-hl) .ss {
+  color: var(--hl-string);
+}
+:is(.kogge-code, .kogge-hl) .m,
+:is(.kogge-code, .kogge-hl) .mb,
+:is(.kogge-code, .kogge-hl) .mf,
+:is(.kogge-code, .kogge-hl) .mh,
+:is(.kogge-code, .kogge-hl) .mi,
+:is(.kogge-code, .kogge-hl) .il,
+:is(.kogge-code, .kogge-hl) .mo,
+:is(.kogge-code, .kogge-hl) .l,
+:is(.kogge-code, .kogge-hl) .ld {
+  color: var(--hl-number);
+}
+:is(.kogge-code, .kogge-hl) .c,
+:is(.kogge-code, .kogge-hl) .ch,
+:is(.kogge-code, .kogge-hl) .cm,
+:is(.kogge-code, .kogge-hl) .c1,
+:is(.kogge-code, .kogge-hl) .cs,
+:is(.kogge-code, .kogge-hl) .cp,
+:is(.kogge-code, .kogge-hl) .cpf {
+  color: var(--hl-comment);
+  font-style: italic;
+}
+:is(.kogge-code, .kogge-hl) .no,
+:is(.kogge-code, .kogge-hl) .bp,
+:is(.kogge-code, .kogge-hl) .nb,
+:is(.kogge-code, .kogge-hl) .vc,
+:is(.kogge-code, .kogge-hl) .vg,
+:is(.kogge-code, .kogge-hl) .vi,
+:is(.kogge-code, .kogge-hl) .vm {
+  color: var(--hl-constant);
+}
+:is(.kogge-code, .kogge-hl) .nt {
+  color: var(--hl-tag);
+}
+:is(.kogge-code, .kogge-hl) .na,
+:is(.kogge-code, .kogge-hl) .py {
+  color: var(--hl-attr);
+}
+:is(.kogge-code, .kogge-hl) .gd {
+  color: var(--hl-keyword);
+}
+:is(.kogge-code, .kogge-hl) .gi {
+  color: var(--hl-tag);
+}
+:is(.kogge-code, .kogge-hl) .gh,
+:is(.kogge-code, .kogge-hl) .gu,
+:is(.kogge-code, .kogge-hl) .gs {
+  font-weight: 600;
+}
+:is(.kogge-code, .kogge-hl) .ge {
+  font-style: italic;
+}
+:is(.kogge-code, .kogge-hl) .err {
+  color: var(--hl-keyword);
+}

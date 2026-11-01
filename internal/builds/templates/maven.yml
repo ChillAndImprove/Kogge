@@ -1,0 +1,36 @@
+# Java with Maven: builds and tests the project with `mvn verify`; Kogge shows the Surefire test reports and
+# keeps the packaged jars for 30 days. The local Maven repository is kept between runs.
+version: 1
+
+defaults:
+  image: docker.io/library/maven:3-eclipse-temurin-21
+  runs-on: [linux, docker]
+  timeout: 45m
+
+pipelines:
+  ci:
+    name: Build and test
+    on:
+      push:
+        branches: ["**"]
+        tags: ["v*"]
+      pull-request:
+        target-branches: ["**"]
+      manual: true
+    stages:
+      - name: Build
+        jobs:
+          - name: verify
+            cache:
+              - key: maven
+                key-files: [pom.xml]
+                paths: [.m2/repository]
+            steps:
+              - name: Verify
+                run: mvn --batch-mode --no-transfer-progress -Dmaven.repo.local=.m2/repository verify
+            reports:
+              junit: ["**/target/surefire-reports/*.xml"]
+            artifacts:
+              - name: packages
+                paths: ["target/*.jar", "*/target/*.jar"]
+                expire-in: 30d

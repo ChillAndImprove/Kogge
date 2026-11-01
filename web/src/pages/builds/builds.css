@@ -1,0 +1,182 @@
+/* SPDX-FileCopyrightText: 2026 The Kogge authors */
+/* SPDX-License-Identifier: EUPL-1.2 */
+
+/* Job logs look like a terminal in both colour schemes. */
+.kogge-log {
+  --log-black: #3b3b3b;
+  --log-red: #f0716f;
+  --log-green: #6fcf7c;
+  --log-yellow: #e5c07b;
+  --log-blue: #6cb6ff;
+  --log-magenta: #d38aea;
+  --log-cyan: #56d4dd;
+  --log-white: #d0d0d0;
+  --log-bright-black: #8a8a8a;
+  --log-bright-red: #ff8f8d;
+  --log-bright-green: #8ee69a;
+  --log-bright-yellow: #f2d49b;
+  --log-bright-blue: #95caff;
+  --log-bright-magenta: #e5aaf5;
+  --log-bright-cyan: #7fe6ec;
+  --log-bright-white: #ffffff;
+  background: #16181d;
+  color: #d6d6d6;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 12.5px;
+  line-height: 1.5;
+  padding: 8px 0;
+  border-radius: var(--mantine-radius-md);
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.kogge-log-line {
+  display: flex;
+  width: 100%;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  padding: 0 12px 0 0;
+}
+
+.kogge-log-line:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.kogge-log-number {
+  flex: 0 0 56px;
+  text-align: right;
+  padding-right: 12px;
+  color: #6b6f78;
+  user-select: none;
+}
+
+.kogge-log-text {
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-width: 0;
+}
+
+button.kogge-log-step {
+  cursor: pointer;
+  margin-top: 4px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.kogge-log-info .kogge-log-text {
+  color: #8fa1b3;
+  font-style: italic;
+}
+
+.kogge-log-error .kogge-log-text {
+  color: var(--log-red);
+  font-weight: 600;
+}
+
+.kogge-stages {
+  display: flex;
+  gap: var(--mantine-spacing-md);
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.kogge-stage {
+  flex: 0 0 220px;
+}
+
+.kogge-job {
+  cursor: pointer;
+}
+
+/* The jobs of a matrix, under the name of the job that made them. */
+.kogge-matrix {
+  padding-left: 8px;
+  border-left: 2px solid var(--mantine-color-default-border);
+}
+
+.kogge-job[data-selected='true'] {
+  outline: 2px solid var(--mantine-primary-color-filled);
+}
+
+/* The jobs of a run as a graph: jobs placed by what they wait for, lines from the jobs they need. */
+.kogge-graph-scroll {
+  overflow: auto;
+  max-height: 70vh;
+  padding: 2px 2px 6px;
+}
+
+.kogge-graph {
+  position: relative;
+}
+
+.kogge-graph svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.kogge-graph-node {
+  position: absolute;
+}
+
+.kogge-graph-node .kogge-job {
+  height: 100%;
+}
+
+.kogge-graph-edge {
+  fill: none;
+  stroke: var(--mantine-color-dimmed);
+  stroke-width: 1.5;
+  opacity: 0.6;
+}
+
+.kogge-graph-edge[data-state='succeeded'] {
+  stroke: var(--mantine-color-green-6);
+}
+
+.kogge-graph-edge[data-state='failed'] {
+  stroke: var(--mantine-color-red-6);
+}
+
+.kogge-graph-edge[data-state='running'] {
+  stroke: var(--mantine-color-blue-6);
+}
+
+.kogge-graph-edge[data-active='true'] {
+  stroke-width: 2.5;
+  opacity: 1;
+}
+
+/* History of a pipeline on the dashboard: one bar per run, its height by duration. */
+.kogge-history-bar {
+  display: block;
+  width: 9px;
+  min-height: 6px;
+  border-radius: 2px;
+  opacity: 0.9;
+  transition:
+    opacity 100ms,
+    transform 100ms;
+}
+.kogge-history-bar:hover,
+.kogge-history-bar:focus-visible {
+  opacity: 1;
+  transform: scaleX(1.25);
+}
+.kogge-history-bar[data-state='running'] {
+  animation: kogge-pulse 1.4s ease-in-out infinite;
+}
+@keyframes kogge-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kogge-history-bar[data-state='running'] {
+    animation: none;
+  }
+}

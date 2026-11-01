@@ -1,0 +1,41 @@
+# Python: installs the project and its dependencies (requirements.txt or pyproject.toml) into a virtual
+# environment and runs the tests with pytest; Kogge shows the test report. pip's cache is kept between runs.
+version: 1
+
+defaults:
+  image: docker.io/library/python:3.13
+  runs-on: [linux, docker]
+  timeout: 30m
+
+pipelines:
+  ci:
+    name: Test
+    on:
+      push:
+        branches: ["**"]
+      pull-request:
+        target-branches: ["**"]
+      manual: true
+    stages:
+      - name: Test
+        jobs:
+          - name: pytest
+            cache:
+              - key: pip
+                key-files: [requirements.txt, pyproject.toml]
+                paths: [.cache/pip]
+            steps:
+              - name: Install
+                run: |
+                  python -m venv .venv
+                  . .venv/bin/activate
+                  export PIP_CACHE_DIR="$PWD/.cache/pip"
+                  if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+                  if [ -f pyproject.toml ]; then pip install -e .; fi
+                  pip install pytest
+              - name: Test
+                run: |
+                  . .venv/bin/activate
+                  python -m pytest --junitxml=report.xml
+            reports:
+              junit: [report.xml]

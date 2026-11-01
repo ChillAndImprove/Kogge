@@ -1,0 +1,19 @@
+# A pipeline to start from: one job that runs in the shell of any Linux agent on every push. Change the steps to
+# what your project needs.
+version: 1
+
+pipelines:
+  ci:
+    name: Build
+    on:
+      push:
+        branches: ["**"]
+      manual: true
+    stages:
+      - name: Build
+        jobs:
+          - name: build
+            runs-on: [linux]
+            steps:
+              - name: Hello
+                run: echo "Building $KOGGE_REPOSITORY at $KOGGE_COMMIT on $KOGGE_BRANCH"

@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+stages:
+  - test
+
+variables:
+  GOFLAGS: "-mod=readonly"
+  GOTOOLCHAIN: "local"
+  KOGGE_TEST_DATABASE_URL: "postgres://kogge:kogge@postgres:5432/postgres?sslmode=disable"
+  KOGGE_TEST_REQUIRE_DB: "1"
+
+go:
+  stage: test
+  image: golang:1.27
+  services:
+    - name: postgres:18-alpine
+      alias: postgres
+      variables:
+        POSTGRES_USER: kogge
+        POSTGRES_PASSWORD: kogge
+        POSTGRES_DB: postgres
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git >/dev/null
+  script:
+    - test -z "$(gofmt -l cmd internal tools)"
+    - go vet ./...
+    - go test -timeout 15m ./...
+    - go run ./tools/golicenses
+
+web:
+  stage: test
+  image: node:24-alpine
+  script:
+    - cd web && npm ci --no-audit --no-fund && cd ..
+    - node tools/npm-licenses.mjs web
+    - cd web && npm run lint && npm test && npm run build

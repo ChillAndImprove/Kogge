@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Quick checks of what is about to be committed: Go files are formatted, new source files carry the SPDX header,
+# no conflict markers are left. The whole CI pipeline runs after the commit (post-commit, tools/ci/run.sh).
+# git commit --no-verify skips these checks.
+set -eu
+
+problems=0
+
+# The staged version of each Go file, which is what the commit gets.
+while IFS= read -r -d '' file; do
+	if [ -n "$(git show ":$file" | gofmt -l 2>&1)" ]; then
+		echo "pre-commit: $file is not formatted (gofmt -w $file, or make format)" >&2
+		problems=1
+	fi
+done < <(git diff --cached --name-only -z --diff-filter=ACMR -- '*.go')
+
+# New source files start with the SPDX header (the project's conventions, REUSE).
+while IFS= read -r -d '' file; do
+	case $file in
+	web/src/api/schema.d.ts | */testdata/*) continue ;;
+	*.go | *.ts | *.tsx | *.js | *.mjs | *.css | *.sql | *.sh | .githooks/*) ;;
+	*) continue ;;
+	esac
+	if ! git show ":$file" | sed -n '1,5p' | grep -q 'SPDX-License-Identifier'; then
+		echo "pre-commit: $file lacks the SPDX header (SPDX-FileCopyrightText and SPDX-License-Identifier)" >&2
+		problems=1
+	fi
+done < <(git diff --cached --name-only -z --diff-filter=A)
+
+if git diff --cached -U0 --no-color | grep -qE '^\+(<{7}|>{7})( |$)'; then
+	echo "pre-commit: the staged changes contain conflict markers" >&2
+	problems=1
+fi
+
+if [ "$problems" != 0 ]; then
+	echo "pre-commit: fix the above, or commit with --no-verify" >&2
+fi
+exit "$problems"

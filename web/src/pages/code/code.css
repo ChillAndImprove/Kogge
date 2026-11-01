@@ -1,0 +1,428 @@
+/* SPDX-FileCopyrightText: 2026 The Kogge authors */
+/* SPDX-License-Identifier: EUPL-1.2 */
+
+/* Source code and diffs; the colours of tokens are in styles/highlight.css. */
+
+.kogge-code {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 12.5px;
+  line-height: 20px;
+  border-collapse: collapse;
+  width: 100%;
+  tab-size: 4;
+}
+
+.kogge-code td {
+  padding: 0 10px;
+  vertical-align: top;
+}
+
+.kogge-code td.ln {
+  width: 1%;
+  min-width: 48px;
+  text-align: right;
+  color: var(--mantine-color-dimmed);
+  user-select: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kogge-code td.ln:hover {
+  color: var(--mantine-color-text);
+}
+
+.kogge-code td.src {
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--hl-name);
+}
+
+.kogge-code tr:hover td.src {
+  background: var(--hl-line-hover);
+}
+
+.kogge-code tr.add td {
+  background: var(--hl-add-bg);
+}
+
+.kogge-code tr.add td.ln {
+  background: var(--hl-add-num);
+}
+
+.kogge-code tr.del td {
+  background: var(--hl-del-bg);
+}
+
+.kogge-code tr.del td.ln {
+  background: var(--hl-del-num);
+}
+
+.kogge-code tr.hunk td {
+  background: var(--hl-hunk-bg);
+  color: var(--mantine-color-dimmed);
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+/* Numbers of added and removed lines: readable on the page in both colour schemes. */
+.kogge-additions {
+  color: var(--mantine-color-teal-9);
+}
+
+.kogge-deletions {
+  color: var(--mantine-color-red-9);
+}
+
+[data-mantine-color-scheme='dark'] .kogge-additions {
+  color: var(--mantine-color-teal-4);
+}
+
+[data-mantine-color-scheme='dark'] .kogge-deletions {
+  color: var(--mantine-color-red-4);
+}
+
+.kogge-code td.ln:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: -2px;
+}
+
+/* Side by side: two halves of equal width; long lines wrap within their half, as in the unified view. */
+.kogge-split {
+  table-layout: fixed;
+}
+
+.kogge-split col.ln-col {
+  width: 52px;
+}
+
+.kogge-split col.marker-col {
+  width: 18px;
+}
+
+.kogge-split td.ln {
+  min-width: 0;
+  width: auto;
+}
+
+.kogge-split td.src + td.ln {
+  border-left: 1px solid var(--mantine-color-default-border);
+}
+
+.kogge-code td.add {
+  background: var(--hl-add-bg);
+}
+
+.kogge-code td.ln.add {
+  background: var(--hl-add-num);
+}
+
+.kogge-code td.del {
+  background: var(--hl-del-bg);
+}
+
+.kogge-code td.ln.del {
+  background: var(--hl-del-num);
+}
+
+.kogge-code td.empty {
+  background: var(--mantine-color-default-hover);
+  cursor: default;
+}
+
+.kogge-split tr.comments td {
+  vertical-align: top;
+}
+
+.kogge-code tr.selected td {
+  background: var(--mantine-color-yellow-light);
+}
+
+.kogge-code tr.comments td {
+  padding: 8px 12px;
+  background: var(--mantine-color-body);
+  font-family: var(--mantine-font-family);
+  white-space: normal;
+}
+
+.kogge-code .marker {
+  width: 14px;
+  padding: 0 4px;
+  text-align: center;
+  user-select: none;
+  color: var(--mantine-color-dimmed);
+}
+
+/* Code inside documents (macros) keeps its own look, not the document's table style. */
+.kogge-doc table.kogge-code {
+  border-collapse: collapse;
+  margin: 0;
+  width: 100%;
+}
+
+.kogge-doc table.kogge-code td {
+  border: 0;
+}
+
+/* Code search: files with their matching lines. */
+.kogge-suggestion-head {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+  background: var(--mantine-color-default-hover);
+}
+
+/* Hafen's start page: the repositories by code project in a panel at the side. */
+.kogge-hafen-group {
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+.kogge-hafen-group-head {
+  background: var(--mantine-color-default-hover);
+}
+
+.kogge-hafen-repos {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.kogge-hafen-repos li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 3px var(--mantine-spacing-md);
+}
+
+.kogge-hafen-repos li:hover {
+  background: var(--mantine-color-default-hover);
+}
+
+/* The start page's full list: room for a description under each name. */
+.kogge-hafen-repos-wide li {
+  padding-block: 8px;
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+.kogge-hafen-repos-wide li:first-child {
+  border-top: 0;
+}
+
+.kogge-hafen-repo-icon,
+.kogge-repo-icon {
+  flex: none;
+  color: var(--mantine-color-dimmed);
+}
+
+.kogge-repo-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The README under the files: a bar with its name, then the text. */
+.kogge-readme-head {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+  background: var(--mantine-color-default-hover);
+}
+
+/* The head of a repository: its name, and search and clone at the right (below it on phones). */
+.kogge-repo-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--mantine-spacing-md);
+  margin-bottom: var(--mantine-spacing-sm);
+}
+
+@media (max-width: 36em) {
+  .kogge-repo-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .kogge-repo-actions > form {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.kogge-search-file {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+  background: var(--mantine-color-default-hover);
+}
+
+.kogge-search-lines {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  padding: 4px 0;
+  tab-size: 4;
+}
+
+.kogge-search-line {
+  display: flex;
+  gap: 12px;
+  padding: 1px 12px;
+}
+
+.kogge-search-line code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+}
+
+.kogge-search-line mark {
+  padding: 0 1px;
+}
+
+.kogge-search-number {
+  min-width: 40px;
+  text-align: right;
+  color: var(--mantine-color-dimmed);
+  flex-shrink: 0;
+}
+
+/* Changed words within a removed or an added line: a stronger shade and an underline, for screens without colour. */
+.kogge-code .kogge-word {
+  border-radius: 2px;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.kogge-code :is(tr.add, td.add) .kogge-word {
+  background: var(--hl-add-word);
+}
+
+.kogge-code :is(tr.del, td.del) .kogge-word {
+  background: var(--hl-del-word);
+}
+
+/* The buttons that show lines a diff leaves out, in the gutter of a hunk's header. */
+.kogge-code td.gap-ctl {
+  text-align: left;
+  padding: 0 4px;
+  cursor: default;
+}
+
+.kogge-gap-buttons {
+  display: inline-flex;
+  gap: 2px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.kogge-code tr.expanded td.ln {
+  cursor: default;
+}
+
+/* A file of a diff: its head stays below the page's header while its changes scroll past. */
+.mantine-Card-root.kogge-diff-file {
+  overflow: clip;
+  scroll-margin-top: calc(var(--app-shell-header-offset, 52px) + 8px);
+}
+
+.kogge-diff-file-head {
+  position: sticky;
+  top: var(--app-shell-header-offset, 52px);
+  z-index: 3;
+  background: inherit;
+}
+
+.kogge-diff-file-head[data-open] {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+
+.kogge-diff-dir {
+  color: var(--mantine-color-dimmed);
+}
+
+.kogge-diff-name {
+  font-weight: 600;
+}
+
+/* The list of changed files beside the changes, on wide screens. */
+.kogge-diff-layout[data-tree] {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: var(--mantine-spacing-md);
+  align-items: start;
+}
+
+.kogge-diff-tree {
+  position: sticky;
+  top: calc(var(--app-shell-header-offset, 52px) + 8px);
+  max-height: calc(100dvh - var(--app-shell-header-offset, 52px) - 16px);
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+}
+
+.kogge-filetree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding-block: 2px;
+  padding-inline-end: 6px;
+  border-radius: 4px;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.kogge-filetree-row:hover {
+  background: var(--mantine-color-default-hover);
+}
+
+/* The file at the top of the window: a bar and bold, not colour alone. */
+.kogge-filetree-row[data-active] {
+  background: var(--mantine-primary-color-light);
+  box-shadow: inset 2px 0 0 var(--mantine-primary-color-filled);
+  font-weight: 650;
+}
+
+.kogge-filetree-row[data-viewed] .kogge-filetree-name {
+  color: var(--mantine-color-dimmed);
+}
+
+.kogge-filetree-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.kogge-filetree-folder {
+  flex: none;
+  color: var(--mantine-color-dimmed);
+}
+
+.kogge-filetree-seen {
+  flex: none;
+  margin-left: auto;
+}
+
+.kogge-filetree-status {
+  flex: none;
+  width: 15px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 13px;
+  text-align: center;
+}
+
+.kogge-filetree-status[data-status='added'] {
+  color: var(--mantine-color-teal-8);
+}
+
+.kogge-filetree-status[data-status='deleted'] {
+  color: var(--mantine-color-red-8);
+}
+
+[data-mantine-color-scheme='dark'] .kogge-filetree-status[data-status='added'] {
+  color: var(--mantine-color-teal-4);
+}
+
+[data-mantine-color-scheme='dark'] .kogge-filetree-status[data-status='deleted'] {
+  color: var(--mantine-color-red-4);
+}

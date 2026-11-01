@@ -1,0 +1,115 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Kogge on several nodes, on top of compose.yaml:
+#
+#   docker compose -f compose.yaml -f compose.ha.yaml up -d
+#
+# Two web nodes, kogge and kogge-2, behind a load balancer (Caddy, ha/Caddyfile), which sends each request to a node
+# whose /readyz answers and passes WebSockets, event streams and Git through unbuffered; nginx (ha/ssh.conf) passes
+# SSH to both web nodes; two workers run the jobs (KOGGE_WORKERS), the elected leader among them the periodic ones.
+# All nodes share the database and the data volume; each keeps only its temporary files (/tmp, with the socket of
+# its Git hooks) to itself. The load balancer publishes KOGGE_HTTP_PUBLISH and nginx KOGGE_SSH_PUBLISH;
+# KOGGE_LB_ADDRESS is the load balancer's address in the stack's network (within KOGGE_SUBNET), whose forwarded
+# client addresses the nodes trust. A third web node: copy kogge-2 and add it to both load balancers' files.
+# deploy/scripts/smoke-test.sh --ha tries this out.
+#
+# One Docker host runs all nodes here, which shows them working together and survives the failure of a node, not
+# that of the host. Across hosts, the data volume is a shared file system (NFS with locking and close-to-open
+# consistency), the database is highly available on its own (e.g. Patroni), and the installation's load balancers
+# take the place of these.
+
+services:
+  # The first web node: the load balancers publish the ports, the workers run the jobs.
+  kogge:
+    ports: !reset []
+    environment:
+      KOGGE_ROLES: web
+      # The load balancer, and a proxy on the Docker host in front of it (by default from the network's gateway),
+      # forward the clients' addresses. Several proxies of the host: separate them by spaces (the load balancer
+      # takes the same list).
+      KOGGE_TRUSTED_PROXIES: ${KOGGE_TRUSTED_PROXIES-${KOGGE_GATEWAY:-172.31.252.1}} ${KOGGE_LB_ADDRESS:-172.31.252.10}
+
+  kogge-2:
+    extends: { file: compose.yaml, service: kogge }
+    ports: !reset []
+    environment:
+      KOGGE_ROLES: web
+      KOGGE_TRUSTED_PROXIES: ${KOGGE_TRUSTED_PROXIES-${KOGGE_GATEWAY:-172.31.252.1}} ${KOGGE_LB_ADDRESS:-172.31.252.10}
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    extends: { file: compose.yaml, service: kogge }
+    ports: !reset []
+    environment:
+      KOGGE_ROLES: worker
+      KOGGE_BOOTSTRAP_ADMIN_USERNAME: ""
+      KOGGE_BOOTSTRAP_ADMIN_PASSWORD: ""
+    # Workers serve no HTTP; their metrics listener shows that they run.
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:9090/metrics"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    deploy:
+      replicas: ${KOGGE_WORKERS:-2}
+
+  lb:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    user: "65534:65534"
+    read_only: true
+    tmpfs: [/tmp, /config, /data]
+    cap_drop: [ALL]
+    # The image's caddy carries the file capability to bind ports below 1024, and a container without it cannot
+    # start the program; it listens on 8080 only.
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:${KOGGE_NO_NEW_PRIVILEGES:-true}"]
+    logging:
+      driver: json-file
+      options: { max-size: 20m, max-file: "5" }
+    command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+    environment:
+      KOGGE_PROXIES: ${KOGGE_TRUSTED_PROXIES-${KOGGE_GATEWAY:-172.31.252.1}}
+    configs:
+      - source: lb
+        target: /etc/caddy/Caddyfile
+    ports: ["${KOGGE_HTTP_PUBLISH:-127.0.0.1:8080}:8080"]
+    networks:
+      default:
+        ipv4_address: ${KOGGE_LB_ADDRESS:-172.31.252.10}
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:8080/readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    depends_on: [kogge, kogge-2]
+
+  ssh-lb:
+    image: nginxinc/nginx-unprivileged:1.29-alpine
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:${KOGGE_NO_NEW_PRIVILEGES:-true}"]
+    logging:
+      driver: json-file
+      options: { max-size: 20m, max-file: "5" }
+    entrypoint: ["nginx"]
+    command: ["-c", "/etc/nginx/kogge-ssh.conf", "-g", "daemon off;"]
+    configs:
+      - source: ssh-lb
+        target: /etc/nginx/kogge-ssh.conf
+    ports: ["${KOGGE_SSH_PUBLISH:-2222}:2222"]
+    depends_on: [kogge, kogge-2]
+
+  keycloak:
+    environment:
+      # Back-channel logouts reach whichever web node is ready.
+      KOGGE_INTERNAL_URL: http://lb:8080
+
+configs:
+  lb:
+    file: ./ha/Caddyfile
+  ssh-lb:
+    file: ./ha/ssh.conf

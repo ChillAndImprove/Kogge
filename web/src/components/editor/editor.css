@@ -1,0 +1,946 @@
+/* SPDX-FileCopyrightText: 2026 The Kogge authors */
+/* SPDX-License-Identifier: EUPL-1.2 */
+
+/* Documents — wiki pages, descriptions, comments — read as well as they are edited: the editor's content has the
+   same class. A compact size (at most 15 px, smaller where the surroundings are) with calm spacing. */
+.kogge-doc {
+  font-size: min(1em, 0.9375rem);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.kogge-doc > :first-child {
+  margin-top: 0;
+}
+.kogge-doc > :last-child {
+  margin-bottom: 0;
+}
+/* Paragraphs follow each other closely: notes written a line at a time (Enter after each) read as lines, not as
+   a column of islands; headings, lists and blocks keep the larger gaps that structure a page. */
+.kogge-doc p {
+  margin: 0 0 0.3em;
+}
+.kogge-doc h1,
+.kogge-doc h2,
+.kogge-doc h3,
+.kogge-doc h4,
+.kogge-doc h5,
+.kogge-doc h6 {
+  margin: 1.4em 0 0.45em;
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 80px;
+}
+/* The two upper levels are ruled off, so that a page's sections stand out without large type. */
+.kogge-doc h1 {
+  font-size: 1.5em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+.kogge-doc h2 {
+  font-size: 1.25em;
+  padding-bottom: 0.2em;
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+.kogge-doc h3 {
+  font-size: 1.1em;
+}
+.kogge-doc h4 {
+  font-size: 1em;
+}
+.kogge-doc h5,
+.kogge-doc h6 {
+  font-size: 0.9em;
+  color: var(--mantine-color-dimmed);
+}
+.kogge-heading-anchor {
+  margin-left: 0.35em;
+  color: var(--mantine-color-dimmed);
+  text-decoration: none;
+  font-weight: 400;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.kogge-heading:hover .kogge-heading-anchor {
+  opacity: 0.7;
+}
+.kogge-doc ul,
+.kogge-doc ol {
+  margin: 0 0 0.65em;
+  padding-left: 1.5em;
+}
+.kogge-doc li {
+  margin: 0.1em 0;
+}
+.kogge-doc li > p,
+.kogge-doc ul[data-type='taskList'] > li p {
+  margin: 0;
+}
+/* The last paragraph of a cell, panel or quote adds no space of its own. */
+.kogge-doc td > p:last-child,
+.kogge-doc th > p:last-child,
+.kogge-doc blockquote > p:last-child,
+.kogge-expand-body > p:last-child {
+  margin-bottom: 0;
+}
+.kogge-doc li::marker {
+  color: var(--mantine-color-dimmed);
+}
+.kogge-doc a {
+  text-underline-offset: 2px;
+}
+.kogge-doc blockquote {
+  margin: 1em 0;
+  padding: 0.1em 0 0.1em 1em;
+  border-left: 3px solid var(--mantine-primary-color-light-color);
+  color: var(--mantine-color-dimmed);
+  font-style: italic;
+}
+.kogge-doc hr {
+  border: 0;
+  border-top: 1px solid var(--mantine-color-default-border);
+  margin: 1.75em 0;
+}
+.kogge-doc img {
+  border-radius: var(--mantine-radius-sm);
+}
+.kogge-doc mark {
+  background: var(--mantine-color-yellow-light);
+  color: inherit;
+  padding: 0 0.1em;
+  border-radius: 2px;
+}
+/* Code blocks: in the editor plain, in documents with a head (CodeBlock.tsx). */
+.kogge-doc pre {
+  margin: 0.9em 0;
+  padding: 0.8em 1em;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-gray-0);
+  overflow-x: auto;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 0.82em;
+  line-height: 1.6;
+  tab-size: 4;
+}
+[data-mantine-color-scheme='dark'] .kogge-doc pre {
+  background: var(--mantine-color-dark-8);
+}
+.kogge-codeblock {
+  margin: 0.9em 0;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+  background: var(--mantine-color-gray-0);
+}
+[data-mantine-color-scheme='dark'] .kogge-codeblock {
+  background: var(--mantine-color-dark-8);
+}
+.kogge-codeblock-head {
+  padding: 2px 4px 2px 12px;
+  min-height: 32px;
+  border-bottom: 1px solid var(--mantine-color-default-border);
+  background: var(--mantine-color-default);
+}
+.kogge-doc .kogge-codeblock pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--hl-name);
+}
+.kogge-doc pre code {
+  font-family: inherit;
+  background: none;
+  padding: 0;
+}
+/* Task lists: done items read as done. */
+.kogge-doc ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0.1em;
+}
+.kogge-doc ul[data-type='taskList'] > li {
+  display: flex;
+  gap: 0.6em;
+  align-items: flex-start;
+}
+.kogge-doc ul[data-type='taskList'] > li > div {
+  flex: 1;
+  min-width: 0;
+}
+/* The checkbox keeps its size: in pages it is a Mantine checkbox, whose root is a div as well. */
+.kogge-doc ul[data-type='taskList'] > li > label,
+.kogge-doc ul[data-type='taskList'] > li > .mantine-Checkbox-root {
+  flex: none;
+  margin-top: 0.3em;
+}
+.kogge-doc ul[data-type='taskList'] input[type='checkbox'] {
+  width: 1em;
+  height: 1em;
+  margin: 0;
+  accent-color: var(--mantine-primary-color-filled);
+  cursor: pointer;
+}
+.kogge-doc ul[data-type='taskList'] > li[data-checked='true'] > div {
+  color: var(--mantine-color-dimmed);
+  text-decoration: line-through;
+}
+/* Tables: in documents inside a frame that scrolls sideways; in the editor plain. */
+.kogge-doc table {
+  border-collapse: collapse;
+  margin: 0.9em 0;
+}
+.kogge-doc td,
+.kogge-doc th {
+  border: 1px solid var(--mantine-color-default-border);
+  padding: 0.45em 0.75em;
+  vertical-align: top;
+  text-align: left;
+}
+.kogge-doc th {
+  background: var(--mantine-color-gray-0);
+  font-weight: 600;
+}
+[data-mantine-color-scheme='dark'] .kogge-doc th {
+  background: var(--mantine-color-dark-6);
+}
+.kogge-doc-table {
+  margin: 0.9em 0;
+  overflow-x: auto;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+}
+.kogge-doc .kogge-doc-table table {
+  margin: 0;
+  width: 100%;
+  border-style: hidden;
+}
+.kogge-doc td[data-bg],
+.kogge-doc th[data-bg] {
+  background: var(--kogge-cell-bg);
+}
+.kogge-doc [data-bg='gray'] {
+  --kogge-cell-bg: var(--mantine-color-gray-light);
+}
+.kogge-doc [data-bg='red'] {
+  --kogge-cell-bg: var(--mantine-color-red-light);
+}
+.kogge-doc [data-bg='orange'] {
+  --kogge-cell-bg: var(--mantine-color-orange-light);
+}
+.kogge-doc [data-bg='yellow'] {
+  --kogge-cell-bg: var(--mantine-color-yellow-light);
+}
+.kogge-doc [data-bg='green'] {
+  --kogge-cell-bg: var(--mantine-color-green-light);
+}
+.kogge-doc [data-bg='teal'] {
+  --kogge-cell-bg: var(--mantine-color-teal-light);
+}
+.kogge-doc [data-bg='blue'] {
+  --kogge-cell-bg: var(--mantine-color-blue-light);
+}
+.kogge-doc [data-bg='violet'] {
+  --kogge-cell-bg: var(--mantine-color-violet-light);
+}
+.kogge-doc [data-bg='pink'] {
+  --kogge-cell-bg: var(--mantine-color-pink-light);
+}
+/* Panels: a coloured box with the icon of its kind. */
+.kogge-panel {
+  border-radius: var(--mantine-radius-md);
+  padding: 0.75em 1em;
+  margin: 0.9em 0;
+  border: 1px solid var(--kogge-panel-border, var(--mantine-color-blue-3));
+  background: var(--kogge-panel-bg, var(--mantine-color-blue-light));
+}
+/* In documents with the icon of the kind; in the editor without. */
+.kogge-panel-view {
+  display: flex;
+  gap: 0.7em;
+  align-items: flex-start;
+}
+.kogge-panel > :last-child {
+  margin-bottom: 0;
+}
+.kogge-panel-icon {
+  flex-shrink: 0;
+  margin-top: 0.2em;
+  color: var(--kogge-panel-icon, var(--mantine-color-blue-6));
+}
+.kogge-panel-body {
+  flex: 1;
+  min-width: 0;
+}
+.kogge-panel-body > :last-child {
+  margin-bottom: 0;
+}
+.kogge-panel[data-kind='note'] {
+  --kogge-panel-border: var(--mantine-color-violet-3);
+  --kogge-panel-bg: var(--mantine-color-violet-light);
+  --kogge-panel-icon: var(--mantine-color-violet-6);
+}
+.kogge-panel[data-kind='warning'] {
+  --kogge-panel-border: var(--mantine-color-orange-3);
+  --kogge-panel-bg: var(--mantine-color-orange-light);
+  --kogge-panel-icon: var(--mantine-color-orange-6);
+}
+.kogge-panel[data-kind='success'] {
+  --kogge-panel-border: var(--mantine-color-teal-3);
+  --kogge-panel-bg: var(--mantine-color-teal-light);
+  --kogge-panel-icon: var(--mantine-color-teal-6);
+}
+.kogge-panel[data-kind='error'] {
+  --kogge-panel-border: var(--mantine-color-red-3);
+  --kogge-panel-bg: var(--mantine-color-red-light);
+  --kogge-panel-icon: var(--mantine-color-red-6);
+}
+[data-mantine-color-scheme='dark'] .kogge-panel {
+  border-color: transparent;
+}
+/* Expandable sections. */
+.kogge-doc details.kogge-expand-block {
+  margin: 0.9em 0;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  padding: 0;
+}
+.kogge-doc details.kogge-expand-block > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.5em 0.8em;
+  list-style: none;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: var(--mantine-radius-md);
+}
+.kogge-doc details.kogge-expand-block > summary::-webkit-details-marker {
+  display: none;
+}
+.kogge-doc details.kogge-expand-block > summary:hover {
+  background: var(--mantine-color-default-hover);
+}
+.kogge-expand-chevron {
+  transition: transform 150ms;
+  color: var(--mantine-color-dimmed);
+}
+.kogge-doc details[open] .kogge-expand-chevron {
+  transform: rotate(90deg);
+}
+.kogge-expand-body {
+  padding: 0.2em 1em 0.8em 2.1em;
+}
+.kogge-date {
+  border-radius: 4px;
+  padding: 0.05em 0.35em;
+  background: var(--mantine-color-default-hover);
+  font-size: 0.92em;
+  white-space: nowrap;
+}
+/* Wiki pages: a measure that reads well, unless the reader wants the full width. */
+.logbuch-page .kogge-doc {
+  font-size: 1rem;
+}
+.logbuch-page {
+  width: 100%;
+  max-width: 54rem;
+  margin-inline: auto;
+}
+.logbuch-page[data-wide] {
+  max-width: none;
+}
+.kogge-mention {
+  color: var(--mantine-primary-color-light-color);
+  background: var(--mantine-primary-color-light);
+  border-radius: 4px;
+  padding: 0 0.2em;
+}
+.kogge-issue-chip {
+  font-weight: 550;
+}
+.kogge-issue-chip-summary {
+  font-weight: 400;
+  color: var(--mantine-color-text);
+}
+.kogge-editor-toolbar {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+  position: sticky;
+  top: var(--app-shell-header-offset, var(--app-shell-header-height, 0px));
+  z-index: 3;
+  background: var(--mantine-color-body);
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+/* The tools of the table the cursor is in, below the toolbar. */
+.kogge-editor-tabletools {
+  border-top: 1px dashed var(--mantine-color-default-border);
+  background: var(--mantine-color-default-hover);
+}
+/* Find and replace, below the toolbar; the matches in the text, the current one stronger. */
+.kogge-editor-find {
+  border-top: 1px dashed var(--mantine-color-default-border);
+}
+.kogge-find-match {
+  background: rgba(250, 176, 5, 0.3);
+  border-radius: 2px;
+}
+.kogge-find-current {
+  background: rgba(253, 126, 20, 0.55);
+  box-shadow: 0 0 0 1px rgba(253, 126, 20, 0.9);
+}
+/* Code blocks in the editor: the language at the top right. */
+.kogge-editor-codeblock {
+  position: relative;
+  margin: 0.6em 0;
+}
+.kogge-editor-codeblock-head {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  opacity: 0.55;
+  transition: opacity 120ms;
+}
+.kogge-editor-codeblock:hover .kogge-editor-codeblock-head,
+.kogge-editor-codeblock:focus-within .kogge-editor-codeblock-head {
+  opacity: 1;
+}
+.kogge-editor-codeblock pre {
+  margin: 0;
+  padding-top: 2.4em;
+}
+/* The "/" menu. */
+.kogge-slash-item {
+  border-radius: 6px;
+}
+.kogge-slash-item[aria-selected='true'] {
+  background: var(--mantine-primary-color-light);
+}
+.kogge-link-bubble {
+  z-index: 20;
+}
+.kogge-editor-content .tiptap a {
+  color: var(--mantine-color-anchor);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.kogge-editor-content .tiptap {
+  outline: none;
+  padding: 0.6em 0.9em;
+  min-height: inherit;
+}
+.kogge-editor-content .tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--mantine-color-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.kogge-editor-content .tiptap .selectedCell {
+  background: var(--mantine-primary-color-light);
+}
+.kogge-status {
+  border-radius: 4px;
+  padding: 0 0.3em;
+  font-size: 0.8em;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--mantine-color-gray-light);
+}
+
+/* Wiki content */
+.kogge-anchor {
+  background: rgba(250, 176, 5, 0.25);
+  border-bottom: 2px solid var(--mantine-color-yellow-6);
+  cursor: pointer;
+}
+.kogge-anchor[data-resolved] {
+  background: none;
+  border-bottom: none;
+  cursor: auto;
+}
+.kogge-anchor[data-active] {
+  background: rgba(250, 176, 5, 0.5);
+}
+/* Layouts: two or three columns side by side, by the widths of their layout; where the layout is narrower than
+   about two columns of text, they stack (the layout is a container of its own for that). */
+.kogge-columns {
+  container-type: inline-size;
+  margin: 0.9em 0;
+}
+.kogge-columns-row {
+  display: flex;
+  gap: 1.5rem;
+}
+.kogge-column {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.kogge-columns[data-layout='left'] .kogge-column:nth-child(2),
+.kogge-columns[data-layout='right'] .kogge-column:nth-child(1),
+.kogge-columns[data-layout='sides'] .kogge-column:nth-child(2) {
+  flex-grow: 2;
+}
+.kogge-column > :first-child {
+  margin-top: 0;
+}
+.kogge-column > :last-child {
+  margin-bottom: 0;
+}
+@container (max-width: 36rem) {
+  .kogge-columns-row {
+    flex-direction: column;
+    gap: 0.75em;
+  }
+}
+/* In the editor, the columns show where they are. */
+.kogge-editor-content .kogge-column {
+  outline: 1px dashed var(--mantine-color-default-border);
+  outline-offset: 0.35rem;
+  border-radius: 2px;
+}
+.kogge-editor-content .kogge-columns {
+  margin: 1.1em 0.4rem;
+}
+.kogge-expand {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
+  padding: 0.4em 0.8em;
+  margin: 0.6em 0;
+}
+.kogge-expand::before {
+  content: '▸ ' attr(data-title);
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.3em;
+}
+.kogge-macro {
+  border: 1px dashed var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
+  margin: 0.6em 0;
+  padding: 0.3em 0.6em;
+  background: var(--mantine-color-default-hover);
+}
+.kogge-macro[data-selected] {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 1px;
+}
+.kogge-macro-head {
+  cursor: default;
+}
+/* What readers see, while the page is written. */
+.kogge-macro-preview {
+  background: var(--mantine-color-body);
+  padding: 0.3em 0.5em;
+  margin-top: 0.3em;
+  border-radius: var(--mantine-radius-sm);
+  cursor: default;
+  overflow-x: auto;
+}
+.kogge-macro-preview > [inert] > :first-child {
+  margin-top: 0;
+}
+.kogge-macro-preview > [inert] > :last-child {
+  margin-bottom: 0;
+}
+.kogge-macro-body {
+  background: var(--mantine-color-body);
+  padding: 0.3em 0.5em;
+  margin-top: 0.3em;
+  border-radius: var(--mantine-radius-sm);
+}
+.kogge-inline-macro {
+  border-radius: 3px;
+  padding: 0 4px;
+  background: var(--mantine-color-default-hover);
+  font-size: 0.9em;
+}
+/* Formulas (KaTeX). Each clips what it draws to its own box, so that negative spaces and lowered or raised boxes
+   cannot reach over the page or the editor; formulas break only where KaTeX allows it. On a line of their own they
+   are centred and scroll sideways where they are wider than the text; within the text they keep the baseline and,
+   longer than a line, wrap within their box. The padding, taken back by the margin, leaves room for glyphs that
+   reach a little beyond. */
+.kogge-math {
+  overflow-wrap: normal;
+}
+.kogge-math-block {
+  margin: 0.9em 0;
+  padding: 0.2em 0.1em;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.kogge-math-block .katex-display {
+  margin: 0;
+}
+.kogge-math-inline {
+  display: inline-block;
+  max-width: 100%;
+  overflow: clip;
+  padding: 0.15em 0.1em;
+  margin: -0.15em -0.1em;
+}
+/* While KaTeX loads, the source; a formula that cannot be typeset shows its source in red with a wavy line (and
+   on a line of its own, why), which reads without colour, too. */
+.kogge-math-box[data-state='loading'] {
+  color: var(--mantine-color-dimmed);
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 0.86em;
+}
+.kogge-math-box[data-state='failed'] {
+  text-align: start;
+}
+code.kogge-math-error {
+  color: var(--mantine-color-error);
+  text-decoration: underline wavy;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
+  white-space: pre-wrap;
+}
+.kogge-math-error-note {
+  color: var(--mantine-color-error);
+  font-size: 0.86em;
+}
+.kogge-doc .kogge-math-box pre {
+  margin: 0.3em 0 0;
+}
+/* Mermaid's formulas (labels in MathML) keep the size of their label once KaTeX's stylesheet has loaded. */
+.kogge-mermaid-svg .katex {
+  font: inherit;
+  line-height: inherit;
+}
+/* In the editor a formula is chosen with a click and edited with a double click; an empty one shows that it is. */
+.kogge-editor-content span.kogge-math-node {
+  display: inline-block;
+  max-width: 100%;
+}
+.kogge-editor-content .kogge-math-node {
+  border-radius: 3px;
+  cursor: pointer;
+}
+.kogge-editor-content .kogge-math-node:hover {
+  background: var(--mantine-color-default-hover);
+}
+.kogge-math-empty {
+  color: var(--mantine-color-dimmed);
+  font-size: 0.9em;
+  font-style: italic;
+  border: 1px dashed var(--mantine-color-default-border);
+  border-radius: 3px;
+  padding: 0 0.35em;
+}
+div.kogge-math-empty {
+  margin: 0.9em 0;
+  padding: 0.5em;
+  text-align: center;
+}
+/* The formula dialog's preview: a piece of the page. */
+.kogge-formula-preview {
+  min-height: 3.2em;
+  padding: 0.6em 0.8em;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
+  overflow: auto;
+}
+/* Text colours that read on the page (WCAG AA, 4.5:1): dark shades on light, light shades on dark. */
+.kogge-color[data-color='red'] {
+  color: var(--mantine-color-red-9);
+}
+.kogge-color[data-color='orange'] {
+  color: color-mix(in srgb, var(--mantine-color-orange-9) 85%, black);
+}
+.kogge-color[data-color='yellow'] {
+  color: color-mix(in srgb, var(--mantine-color-yellow-9) 75%, black);
+}
+.kogge-color[data-color='green'] {
+  color: color-mix(in srgb, var(--mantine-color-green-9) 90%, black);
+}
+.kogge-color[data-color='teal'] {
+  color: var(--mantine-color-teal-9);
+}
+.kogge-color[data-color='blue'] {
+  color: var(--mantine-color-blue-9);
+}
+.kogge-color[data-color='violet'] {
+  color: var(--mantine-color-violet-9);
+}
+.kogge-color[data-color='pink'] {
+  color: var(--mantine-color-pink-9);
+}
+.kogge-color[data-color='gray'] {
+  color: var(--mantine-color-gray-7);
+}
+[data-mantine-color-scheme='dark'] .kogge-color[data-color='red'] {
+  color: var(--mantine-color-red-4);
+}
+[data-mantine-color-scheme='dark'] .kogge-color[data-color='orange'] {
+  color: var(--mantine-color-orange-4);
+}
+[data-mantine-color-scheme='dark'] .kogge-color[data-color='yellow'] {
+  color: var(--mantine-color-yellow-4);
+}
+[data-mantine-color-scheme='dark'] .kogge-color[data-color='green'] {
+  color: var(--mantine-color-green-4);
+}
+[data-mantine-color-scheme='dark'] .kogge-color[data-color='teal'] {
+  color: var(--mantine-color-teal-4);
+}
+[data-mantine-color-scheme='dark'] .kogge-color[data-color='blue'] {
+  color: var(--mantine-color-blue-4);
+}
+[data-mantine-color-scheme='dark'] .kogge-color[data-color='violet'] {
+  color: var(--mantine-color-violet-4);
+}
+[data-mantine-color-scheme='dark'] .kogge-color[data-color='pink'] {
+  color: var(--mantine-color-pink-4);
+}
+[data-mantine-color-scheme='dark'] .kogge-color[data-color='gray'] {
+  color: var(--mantine-color-gray-4);
+}
+
+/* The editor shows documents as readers will see them. */
+.kogge-editor-content .tiptap > :first-child {
+  margin-top: 0;
+}
+.kogge-editor-content .tiptap > :last-child {
+  margin-bottom: 0;
+}
+.kogge-editor:focus-within {
+  outline: 1px solid var(--mantine-primary-color-filled);
+  outline-offset: -1px;
+}
+/* What is selected as a whole (an image, a status, a mention, a date) shows that it is. */
+.kogge-editor-content .ProseMirror-selectednode:not(.kogge-macro) {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 1px;
+  border-radius: 3px;
+}
+.kogge-editor-content .ProseMirror-gapcursor::after {
+  border-top-color: var(--mantine-color-text);
+}
+/* Code within text, the same when read and when edited. */
+.kogge-doc :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--mantine-color-gray-0);
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 0.86em;
+}
+[data-mantine-color-scheme='dark'] .kogge-doc :not(pre) > code {
+  background: var(--mantine-color-dark-6);
+}
+/* Tables in a frame, as wide as the text. */
+.kogge-editor-content .tableWrapper {
+  margin: 0.9em 0;
+  overflow-x: auto;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+}
+.kogge-editor-content .tableWrapper table {
+  margin: 0;
+  width: 100%;
+  border-style: hidden;
+}
+/* Panels with the icon of their kind (as masks: the icon takes the panel's colour). */
+.kogge-editor-content .kogge-panel {
+  position: relative;
+  padding-left: 2.8em;
+}
+.kogge-editor-content .kogge-panel::before {
+  content: '';
+  position: absolute;
+  left: 1em;
+  top: 0.95em;
+  width: 18px;
+  height: 18px;
+  background-color: var(--kogge-panel-icon, var(--mantine-color-blue-6));
+  -webkit-mask: var(--kogge-panel-mask) center / contain no-repeat;
+  mask: var(--kogge-panel-mask) center / contain no-repeat;
+}
+.kogge-editor-content .kogge-panel {
+  --kogge-panel-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0'/><path d='M12 9h.01'/><path d='M11 12h1v4h1'/></svg>");
+}
+.kogge-editor-content .kogge-panel[data-kind='note'] {
+  --kogge-panel-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M13 20l7 -7'/><path d='M13 20v-6a1 1 0 0 1 1 -1h6v-7a2 2 0 0 0 -2 -2h-12a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7'/></svg>");
+}
+.kogge-editor-content .kogge-panel[data-kind='warning'] {
+  --kogge-panel-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 9v4'/><path d='M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0'/><path d='M12 16h.01'/></svg>");
+}
+.kogge-editor-content .kogge-panel[data-kind='success'] {
+  --kogge-panel-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0'/><path d='M9 12l2 2l4 -4'/></svg>");
+}
+.kogge-editor-content .kogge-panel[data-kind='error'] {
+  --kogge-panel-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12.802 2.165l5.575 2.389c.48 .206 .863 .589 1.07 1.07l2.388 5.574c.22 .512 .22 1.092 0 1.604l-2.389 5.575c-.206 .48 -.589 .863 -1.07 1.07l-5.574 2.388c-.512 .22 -1.092 .22 -1.604 0l-5.575 -2.389a2.036 2.036 0 0 1 -1.07 -1.07l-2.388 -5.574a2.036 2.036 0 0 1 0 -1.604l2.389 -5.575c.206 -.48 .589 -.863 1.07 -1.07l5.574 -2.388a2.036 2.036 0 0 1 1.604 0'/><path d='M12 8v4'/><path d='M12 16h.01'/></svg>");
+}
+/* Status lozenges in their colour, as Mantine's light badges in pages. */
+.kogge-status {
+  background: var(--kogge-status-bg, var(--mantine-color-gray-light));
+  color: var(--kogge-status-color, var(--mantine-color-gray-light-color));
+}
+.kogge-status[data-status='gray'] {
+  --kogge-status-bg: var(--mantine-color-gray-light);
+  --kogge-status-color: var(--mantine-color-gray-light-color);
+}
+.kogge-status[data-status='red'] {
+  --kogge-status-bg: var(--mantine-color-red-light);
+  --kogge-status-color: var(--mantine-color-red-light-color);
+}
+.kogge-status[data-status='orange'] {
+  --kogge-status-bg: var(--mantine-color-orange-light);
+  --kogge-status-color: var(--mantine-color-orange-light-color);
+}
+.kogge-status[data-status='yellow'] {
+  --kogge-status-bg: var(--mantine-color-yellow-light);
+  --kogge-status-color: var(--mantine-color-yellow-light-color);
+}
+.kogge-status[data-status='green'] {
+  --kogge-status-bg: var(--mantine-color-green-light);
+  --kogge-status-color: var(--mantine-color-green-light-color);
+}
+.kogge-status[data-status='teal'] {
+  --kogge-status-bg: var(--mantine-color-teal-light);
+  --kogge-status-color: var(--mantine-color-teal-light-color);
+}
+.kogge-status[data-status='blue'] {
+  --kogge-status-bg: var(--mantine-color-blue-light);
+  --kogge-status-color: var(--mantine-color-blue-light-color);
+}
+.kogge-status[data-status='violet'] {
+  --kogge-status-bg: var(--mantine-color-violet-light);
+  --kogge-status-color: var(--mantine-color-violet-light-color);
+}
+.kogge-status[data-status='pink'] {
+  --kogge-status-bg: var(--mantine-color-pink-light);
+  --kogge-status-color: var(--mantine-color-pink-light-color);
+}
+
+/* Images within text (Markdown): badges and icons sit on the line, larger images keep within it. */
+.kogge-inline-image {
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+/* Shared drafts: where the others are. */
+.kogge-remote-caret {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 2px solid var(--caret-color);
+  pointer-events: none;
+  word-break: normal;
+}
+.kogge-remote-caret::after {
+  content: attr(data-name);
+  position: absolute;
+  top: -1.35em;
+  left: -2px;
+  padding: 0 4px;
+  border-radius: 3px 3px 3px 0;
+  background: var(--caret-color);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  user-select: none;
+  opacity: 0.95;
+}
+.kogge-remote-selection {
+  background: color-mix(in srgb, var(--caret-color) 22%, transparent);
+}
+@keyframes kogge-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.kogge-spin {
+  animation: kogge-spin 1s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kogge-spin {
+    animation: none;
+  }
+}
+
+/* Writing as Markdown, as in a Markdown editor: a toolbar, the source with line numbers beside the preview, both
+   as high as the window allows and scrolling together, and a status line. The colours of the source come from these
+   properties; weight, slant and lines carry its meaning, also without colour. */
+.kogge-markdown {
+  --kogge-md-gutter: var(--mantine-color-gray-0);
+  --kogge-md-active: rgba(0, 0, 0, 0.035);
+  --kogge-md-selection: rgba(34, 139, 230, 0.22);
+  --kogge-md-match: rgba(250, 176, 5, 0.28);
+  --kogge-md-heading: var(--mantine-color-black);
+  --kogge-md-mark: var(--mantine-color-gray-6);
+  --kogge-md-quote: var(--mantine-color-gray-7);
+  --kogge-md-code: var(--mantine-color-text);
+  --kogge-md-code-bg: rgba(0, 0, 0, 0.05);
+  --kogge-md-math: var(--mantine-color-violet-8);
+  display: flex;
+  flex-direction: column;
+  border-radius: inherit;
+  background: var(--mantine-color-body);
+}
+[data-mantine-color-scheme='dark'] .kogge-markdown {
+  --kogge-md-gutter: var(--mantine-color-dark-7);
+  --kogge-md-active: rgba(255, 255, 255, 0.045);
+  --kogge-md-selection: rgba(77, 171, 247, 0.3);
+  --kogge-md-match: rgba(250, 176, 5, 0.25);
+  --kogge-md-heading: var(--mantine-color-white);
+  --kogge-md-mark: var(--mantine-color-dark-2);
+  --kogge-md-quote: var(--mantine-color-dark-1);
+  --kogge-md-code-bg: rgba(255, 255, 255, 0.08);
+  --kogge-md-math: var(--mantine-color-violet-3);
+}
+.kogge-markdown-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  height: clamp(420px, calc(100dvh - var(--app-shell-header-offset, 52px) - 260px), 1600px);
+}
+/* Narrow screens: the source or the preview. */
+.kogge-markdown-split[data-tab] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.kogge-markdown-split[data-tab='write'] .kogge-markdown-preview,
+.kogge-markdown-split[data-tab='preview'] .kogge-markdown-source {
+  display: none;
+}
+.kogge-markdown-pane {
+  min-height: 0;
+  min-width: 0;
+}
+.kogge-markdown-source,
+.kogge-markdown-code {
+  height: 100%;
+  overflow: hidden;
+}
+.kogge-markdown-preview {
+  overflow: auto;
+  padding: 14px 22px 48px;
+}
+.kogge-markdown-split:not([data-tab]) .kogge-markdown-preview {
+  border-left: 1px solid var(--mantine-color-default-border);
+}
+.kogge-markdown-status {
+  border-top: 1px solid var(--mantine-color-default-border);
+  background: var(--kogge-md-gutter);
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+/* Full screen: the editor fills the window below the app's header; Escape leaves it. */
+.kogge-markdown[data-full] {
+  position: fixed;
+  inset: var(--app-shell-header-offset, 52px) 0 0 0;
+  z-index: 190;
+  border-radius: 0;
+}
+.kogge-markdown[data-full] .kogge-markdown-split {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+.kogge-markdown[data-full] .kogge-editor-toolbar {
+  position: static;
+}

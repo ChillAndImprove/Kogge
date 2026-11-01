@@ -1,0 +1,12 @@
+alpine-baselayout
+alpine-keys
+alpine-release
+apk-tools
+busybox
+ca-certificates
+docker-cli
+git
+git-lfs
+libc-utils
+openssh-client
+tzdata

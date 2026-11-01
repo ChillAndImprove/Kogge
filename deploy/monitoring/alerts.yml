@@ -1,0 +1,187 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Prometheus alerting rules for Kogge. Load them with rule_files (see prometheus.yml next to this file); they expect
+# the scrape job of Kogge's metrics listener (KOGGE_METRICS_ADDR) to be named "kogge" or to start with it. Gauges that
+# are read from the database (jobs, agents, e-mails, audit forwarding) are reported by every node, hence max().
+# make monitoring-check runs promtool's checks and the tests in alerts.test.yml.
+groups:
+  - name: kogge-availability
+    rules:
+      - alert: KoggeDown
+        expr: up{job=~"kogge.*"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kogge on {{ $labels.instance }} does not answer the metrics scrape"
+          description: "The process is down or its metrics listener is unreachable. Check the service (systemctl status kogge, docker compose ps) and its log."
+      - alert: KoggeDatabaseDown
+        expr: min by (instance) (kogge_database_up{job=~"kogge.*"}) == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kogge on {{ $labels.instance }} cannot query its database"
+          description: "PostgreSQL is down, unreachable or overloaded; every product is affected. Check PostgreSQL and the connection settings (KOGGE_DATABASE_URL)."
+      - alert: KoggeServerErrors
+        expr: |
+          sum by (instance) (rate(kogge_http_request_duration_seconds_count{job=~"kogge.*", code="5xx"}[5m]))
+            / sum by (instance) (rate(kogge_http_request_duration_seconds_count{job=~"kogge.*"}[5m])) > 0.05
+          and sum by (instance) (rate(kogge_http_request_duration_seconds_count{job=~"kogge.*"}[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than 5 % of the requests to {{ $labels.instance }} fail with server errors"
+          description: "{{ $value | humanizePercentage }} of the requests ended with 5xx in the last 5 minutes. The log has the request ids and errors."
+      - alert: KoggeSlowRequests
+        # Ordinary API requests; uploads, downloads, archives, exports and logs take as long as their data.
+        expr: |
+          histogram_quantile(0.95, sum by (le, instance) (rate(kogge_http_request_duration_seconds_bucket{job=~"kogge.*",
+            route=~"/api/v1/.*", route!~".*(attachments|archive|export|/raw|artifacts|/log/).*"}[10m]))) > 2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API requests on {{ $labels.instance }} are slow"
+          description: "The 95th percentile of API request durations is {{ $value | humanizeDuration }} (target: well below a second). Look at the slowest routes on the dashboard, the database load and the host."
+
+  - name: kogge-storage
+    rules:
+      - alert: KoggeStorageLow
+        # Below the reserve of Administration → Settings → Limits, Kogge refuses pushes and uploads.
+        expr: kogge_data_free_bytes{job=~"kogge.*"} < kogge_data_min_free_bytes{job=~"kogge.*"}
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kogge on {{ $labels.instance }} refuses pushes and uploads: the data volume is nearly full"
+          description: "{{ $value | humanize1024 }}B are free, less than the reserve Kogge keeps. Free space (old artifacts, repositories over their quota) or grow the volume."
+      - alert: KoggeStorageFillingUp
+        expr: kogge_data_free_bytes{job=~"kogge.*"} < 2 * kogge_data_min_free_bytes{job=~"kogge.*"}
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "The data volume of Kogge on {{ $labels.instance }} is filling up"
+          description: "{{ $value | humanize1024 }}B are free, less than twice the reserve; below the reserve, Kogge refuses pushes and uploads."
+
+  - name: kogge-background
+    rules:
+      - alert: KoggeJobsWaiting
+        expr: max by (queue) (kogge_jobs{job=~"kogge.*", state="available"}) > 200
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $value }} background jobs in queue {{ $labels.queue }} wait for a worker"
+          description: "Notifications, indexing, webhooks and push processing are delayed. Check that a node with the worker role runs, and its load."
+      - alert: KoggeJobQueueWait
+        expr: histogram_quantile(0.95, sum by (le, queue) (rate(kogge_jobs_queue_wait_seconds_bucket{job=~"kogge.*"}[15m]))) > 60
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Background jobs in queue {{ $labels.queue }} start late"
+          description: "The 95th percentile of the wait is {{ $value | humanizeDuration }}. Add workers (KOGGE_ROLES=worker) or find the jobs that run long."
+      - alert: KoggeJobsFailing
+        expr: |
+          sum by (kind) (rate(kogge_jobs_duration_seconds_count{job=~"kogge.*", result="error"}[30m]))
+            / sum by (kind) (rate(kogge_jobs_duration_seconds_count{job=~"kogge.*"}[30m])) > 0.2
+          and sum by (kind) (rate(kogge_jobs_duration_seconds_count{job=~"kogge.*", result="error"}[30m])) > 0.002
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Background jobs of kind {{ $labels.kind }} fail"
+          description: "{{ $value | humanizePercentage }} of the attempts failed in the last 30 minutes; failed jobs are retried up to ten times. The log names the error."
+      - alert: KoggeJobsRetrying
+        expr: max(kogge_jobs{job=~"kogge.*", state="retryable"}) > 100
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $value }} background jobs wait for a retry"
+          description: "Jobs keep failing; a mail relay, webhook receiver, SIEM or the disk may be the cause. The log names the errors."
+
+  - name: kogge-builds
+    rules:
+      - alert: KoggeNoBuildAgents
+        expr: max(kogge_build_agents{job=~"kogge.*", state="online"}) == 0 and max(kogge_build_jobs_pending{job=~"kogge.*"}) > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Build jobs wait, but no build agent is online"
+          description: "Pipelines do not run. Check the agents (kogge-agent run) and their connection to Kogge."
+      - alert: KoggeBuildJobsStuck
+        expr: max(kogge_build_oldest_pending_seconds{job=~"kogge.*"}) > 1800
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "A build job has waited for an agent for {{ $value | humanizeDuration }}"
+          description: "No agent matches its labels (runs-on), the matching agents are busy or disabled, or it waits for a concurrency limit of its repository or environment."
+
+  - name: kogge-delivery
+    rules:
+      - alert: KoggeMailRelayFailing
+        expr: |
+          sum(rate(kogge_mail_sent_total{job=~"kogge.*", result="error"}[15m])) > 0
+          and sum(rate(kogge_mail_sent_total{job=~"kogge.*", result="ok"}[15m])) == 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No e-mail reaches the mail relay"
+          description: "Every attempt in the last 15 minutes failed: notifications and filter subscriptions are not delivered. Check KOGGE_SMTP_* and the relay."
+      - alert: KoggeMailBacklog
+        expr: max(kogge_mail_pending{job=~"kogge.*"}) > 1000
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $value }} notifications wait to be sent by e-mail"
+          description: "E-mail delivery is slower than notifications arrive, or the relay refuses them."
+      - alert: KoggeWebhooksFailing
+        expr: |
+          sum(rate(kogge_webhooks_deliveries_total{job=~"kogge.*", result="error"}[30m]))
+            / sum(rate(kogge_webhooks_deliveries_total{job=~"kogge.*"}[30m])) > 0.5
+          and sum(rate(kogge_webhooks_deliveries_total{job=~"kogge.*"}[30m])) > 0.01
+        for: 30m
+        labels:
+          severity: info
+        annotations:
+          summary: "Most webhook deliveries fail"
+          description: "{{ $value | humanizePercentage }} of the attempts failed. The delivery log of each webhook shows the receivers' answers."
+      - alert: KoggeAuditForwardingFailing
+        expr: max(kogge_audit_forward_failing{job=~"kogge.*"}) == 1
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Audit events do not reach the SIEM"
+          description: "Deliveries to KOGGE_AUDIT_FORWARD_URL fail; events are kept and sent once the SIEM accepts them again."
+      - alert: KoggeAuditForwardingLag
+        expr: max(kogge_audit_forward_oldest_waiting_seconds{job=~"kogge.*"}) > 900
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "The oldest audit event waiting for the SIEM is {{ $value | humanizeDuration }} old"
+          description: "Forwarding is slower than events arrive, or the SIEM refuses them."
+
+  - name: kogge-git
+    rules:
+      - alert: KoggeGitOperationsFailing
+        expr: |
+          sum by (service) (rate(kogge_git_operation_duration_seconds_count{job=~"kogge.*", result="error"}[15m]))
+            / sum by (service) (rate(kogge_git_operation_duration_seconds_count{job=~"kogge.*"}[15m])) > 0.1
+          and sum by (service) (rate(kogge_git_operation_duration_seconds_count{job=~"kogge.*"}[15m])) > 0.01
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Git {{ $labels.service }} fails often"
+          description: "{{ $value | humanizePercentage }} of the operations failed in the last 15 minutes (pushes that Git itself refuses count too). Check the log and the data volume."

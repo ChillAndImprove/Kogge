@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# The load balancer of compose.ha.yaml: HTTP to the web nodes that are ready. A proxy in front of it, on the Docker
+# host (KOGGE_PROXIES, by default the network's gateway), forwards the clients' addresses, which it passes on.
+{
+	admin off
+	auto_https off
+	servers {
+		trusted_proxies static 127.0.0.1/32 {$KOGGE_PROXIES}
+	}
+}
+
+:8080 {
+	reverse_proxy kogge:8080 kogge-2:8080 {
+		lb_policy round_robin
+		# A request that reached no node (the node stopped) goes to another one; requests are not sent twice.
+		lb_try_duration 10s
+		# Only nodes that are ready get requests: their database and data volume answer.
+		health_uri /readyz
+		health_interval 5s
+		health_timeout 3s
+		fail_duration 30s
+		# Git, live updates, editors and build logs: data goes on as it comes, in both directions.
+		flush_interval -1
+	}
+}

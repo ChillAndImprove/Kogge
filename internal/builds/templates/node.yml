@@ -1,0 +1,39 @@
+# Node.js: installs the dependencies of package-lock.json with npm, then lints, tests and builds the project with
+# the scripts of package.json that exist. The npm cache is kept between runs, dist/ for 14 days.
+version: 1
+
+defaults:
+  image: docker.io/library/node:22
+  runs-on: [linux, docker]
+  timeout: 30m
+
+pipelines:
+  ci:
+    name: Build and test
+    on:
+      push:
+        branches: ["**"]
+      pull-request:
+        target-branches: ["**"]
+      manual: true
+    stages:
+      - name: Build
+        jobs:
+          - name: build
+            cache:
+              - key: npm
+                key-files: [package-lock.json]
+                paths: [.npm]
+            steps:
+              - name: Install
+                run: npm ci --cache .npm --prefer-offline --no-audit
+              - name: Lint
+                run: npm run lint --if-present
+              - name: Test
+                run: npm test --if-present
+              - name: Build
+                run: npm run build --if-present
+            artifacts:
+              - name: dist
+                paths: ["dist/**"]
+                expire-in: 14d

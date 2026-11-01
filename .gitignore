@@ -1,0 +1,52 @@
+# Build output
+/bin/
+/dist/
+internal/webui/dist/
+web/node_modules/
+web/coverage/
+*.test
+*.out
+coverage.html
+
+# Node
+node_modules/
+.vite/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+*.tsbuildinfo
+
+# IDEs and OS
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Local configuration and secrets (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+deploy/secrets/
+
+# Runtime data
+/data/
+deploy/data/
+migration-work/
+*.log
+
+/web/dist-showcase/
+
+# The design documentation stays on the developers' disks, not in the repository.
+/docs/
+
+# Documentation other than the README stays on the developers' disks, not in the repository (the build generates
+# THIRD_PARTY_LICENSES.md).
+*.md
+!/README.md
+!/README.de.md

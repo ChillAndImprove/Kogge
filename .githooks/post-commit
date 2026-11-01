@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Hands the new commit to the CI pipeline, which runs in the background (tools/ci/run.sh -q -p commit); commits made
+# during a run are coalesced into the next one. tools/ci/status.sh shows the results. git config kogge.ci.enabled
+# false turns this off.
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+enabled=${KOGGE_CI_ENABLED:-$(git config --get kogge.ci.enabled || echo true)}
+[ "$enabled" = false ] && exit 0
+[ -x "$root/tools/ci/run.sh" ] || exit 0
+sha=$(git rev-parse HEAD) || exit 0
+cd "$root" || exit 0
+detach=nohup
+command -v setsid >/dev/null && detach="nohup setsid"
+env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE -u GIT_PREFIX \
+	$detach "$root/tools/ci/run.sh" -q -p commit "$sha" </dev/null >/dev/null 2>&1 &
+echo "kogge-ci: the pipeline for $(git rev-parse --short HEAD) runs in the background (tools/ci/status.sh)" >&2
+exit 0

@@ -1,0 +1,51 @@
+# Go: vets and tests the module with the race detector on every push and pull request, and builds the binaries of
+# the module into dist/ (kept for 30 days) at the same time — needs: [] starts the build without waiting for the
+# tests; the run fails if they do. The Go caches are kept between runs.
+version: 1
+
+defaults:
+  image: docker.io/library/golang:1.25
+  runs-on: [linux, docker]
+  timeout: 30m
+
+pipelines:
+  ci:
+    name: Build and test
+    on:
+      push:
+        branches: ["**"]
+        tags: ["v*"]
+      pull-request:
+        target-branches: ["**"]
+      manual: true
+    stages:
+      - name: Test
+        jobs:
+          - name: test
+            cache:
+              - key: go
+                key-files: [go.sum]
+                paths: [.cache/go-mod, .cache/go-build]
+            steps:
+              - name: Vet and test
+                run: |
+                  export GOMODCACHE="$PWD/.cache/go-mod" GOCACHE="$PWD/.cache/go-build"
+                  go vet ./...
+                  go test -race ./...
+      - name: Build
+        jobs:
+          - name: build
+            needs: []
+            cache:
+              - key: go
+                key-files: [go.sum]
+                paths: [.cache/go-mod, .cache/go-build]
+            steps:
+              - name: Build the binaries
+                run: |
+                  export GOMODCACHE="$PWD/.cache/go-mod" GOCACHE="$PWD/.cache/go-build"
+                  CGO_ENABLED=0 go build -trimpath -o dist/ ./...
+            artifacts:
+              - name: binaries
+                paths: ["dist/**"]
+                expire-in: 30d

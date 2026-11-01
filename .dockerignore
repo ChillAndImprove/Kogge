@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# What `docker build` (deploy/Dockerfile) does not get: secrets and runtime data never enter an image or its build
+# cache, the web stage installs its own packages (those of the host may be built for another C library), and
+# without .git the Go build does not ask git (absent from the build image) for the version control state.
+.git
+**/node_modules
+/bin/
+/dist/
+/data/
+/docs/
+/migration-work/
+internal/webui/dist/
+web/dist-showcase/
+web/coverage/
+e2e/test-results/
+e2e/playwright-report/
+e2e/.auth/
+deploy/secrets/
+deploy/backups/
+deploy/data/
+deploy/.env
+.env
+*.pem
+*.key
+*.p12
+*.log
+.idea/
+.vscode/
+THIRD_PARTY_LICENSES.md

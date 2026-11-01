@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+# Included by example.yml from another repository (PLATFORM/ci-templates:templates/security.yml): a whole pipeline.
+pipelines:
+  security:
+    name: Security scan
+    on:
+      push: { branches: [main] }
+      schedule:
+        - cron: "0 3 * * *"
+    stages:
+      - name: Scan
+        jobs:
+          - name: scan
+            image: docker.io/aquasec/trivy:0.60.0
+            resources: { memory: 2g }
+            steps:
+              - run: trivy fs --exit-code 1 .

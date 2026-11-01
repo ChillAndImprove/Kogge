@@ -1,0 +1,182 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# Tests of alerts.yml for promtool (make monitoring-check): each alert fires on the situation it is for and stays
+# quiet otherwise.
+rule_files:
+  - alerts.yml
+evaluation_interval: 1m
+tests:
+  - name: the database stops answering
+    interval: 1m
+    input_series:
+      - series: 'kogge_database_up{job="kogge", instance="k1:9090"}'
+        values: "1 1 0x10"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: KoggeDatabaseDown
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: KoggeDatabaseDown
+        exp_alerts:
+          - exp_labels: { severity: critical, instance: "k1:9090" }
+            exp_annotations:
+              summary: "Kogge on k1:9090 cannot query its database"
+              description: "PostgreSQL is down, unreachable or overloaded; every product is affected. Check PostgreSQL and the connection settings (KOGGE_DATABASE_URL)."
+
+  - name: one request in seven fails
+    interval: 1m
+    input_series:
+      - series: 'kogge_http_request_duration_seconds_count{job="kogge", instance="k1:9090", method="GET", route="/api/v1/issues/{key}", code="2xx"}'
+        values: "0+60x30"
+      - series: 'kogge_http_request_duration_seconds_count{job="kogge", instance="k1:9090", method="GET", route="/api/v1/issues/{key}", code="5xx"}'
+        values: "0+10x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: KoggeServerErrors
+        exp_alerts:
+          - exp_labels: { severity: warning, instance: "k1:9090" }
+            exp_annotations:
+              summary: "More than 5 % of the requests to k1:9090 fail with server errors"
+              description: "14.29% of the requests ended with 5xx in the last 5 minutes. The log has the request ids and errors."
+
+  - name: a few server errors on an idle instance are no alert
+    interval: 1m
+    input_series:
+      - series: 'kogge_http_request_duration_seconds_count{job="kogge", instance="k1:9090", method="GET", route="/api/v1/me", code="5xx"}'
+        values: "0+1x30"
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: KoggeServerErrors
+        exp_alerts: []
+
+  - name: build jobs wait and no agent is online
+    interval: 1m
+    input_series:
+      - series: 'kogge_build_agents{job="kogge", instance="k1:9090", state="online"}'
+        values: "0x20"
+      - series: 'kogge_build_jobs_pending{job="kogge", instance="k1:9090"}'
+        values: "3x20"
+      - series: 'kogge_build_agents{job="kogge", instance="k2:9090", state="online"}'
+        values: "0x20"
+      - series: 'kogge_build_jobs_pending{job="kogge", instance="k2:9090"}'
+        values: "3x20"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: KoggeNoBuildAgents
+        exp_alerts:
+          - exp_labels: { severity: warning }
+            exp_annotations:
+              summary: "Build jobs wait, but no build agent is online"
+              description: "Pipelines do not run. Check the agents (kogge-agent run) and their connection to Kogge."
+
+  - name: an agent is online
+    interval: 1m
+    input_series:
+      - series: 'kogge_build_agents{job="kogge", instance="k1:9090", state="online"}'
+        values: "1x20"
+      - series: 'kogge_build_jobs_pending{job="kogge", instance="k1:9090"}'
+        values: "3x20"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: KoggeNoBuildAgents
+        exp_alerts: []
+
+  - name: a build job waits for more than half an hour
+    interval: 1m
+    input_series:
+      - series: 'kogge_build_oldest_pending_seconds{job="kogge", instance="k1:9090"}'
+        values: "0+60x60"
+    alert_rule_test:
+      - eval_time: 33m
+        alertname: KoggeBuildJobsStuck
+        exp_alerts: []
+      - eval_time: 40m
+        alertname: KoggeBuildJobsStuck
+        exp_alerts:
+          - exp_labels: { severity: warning }
+            exp_annotations:
+              summary: "A build job has waited for an agent for 40m 0s"
+              description: "No agent matches its labels (runs-on), the matching agents are busy or disabled, or it waits for a concurrency limit of its repository or environment."
+
+  - name: the mail relay refuses everything
+    interval: 1m
+    input_series:
+      - series: 'kogge_mail_sent_total{job="kogge", instance="k1:9090", result="error"}'
+        values: "0+5x40"
+      - series: 'kogge_mail_sent_total{job="kogge", instance="k1:9090", result="ok"}'
+        values: "0x40"
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: KoggeMailRelayFailing
+        exp_alerts:
+          - exp_labels: { severity: warning }
+            exp_annotations:
+              summary: "No e-mail reaches the mail relay"
+              description: "Every attempt in the last 15 minutes failed: notifications and filter subscriptions are not delivered. Check KOGGE_SMTP_* and the relay."
+
+  - name: some e-mails still get through
+    interval: 1m
+    input_series:
+      - series: 'kogge_mail_sent_total{job="kogge", instance="k1:9090", result="error"}'
+        values: "0+5x40"
+      - series: 'kogge_mail_sent_total{job="kogge", instance="k1:9090", result="ok"}'
+        values: "0+1x40"
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: KoggeMailRelayFailing
+        exp_alerts: []
+
+  - name: the SIEM refuses audit events
+    interval: 1m
+    input_series:
+      - series: 'kogge_audit_forward_failing{job="kogge", instance="k1:9090"}'
+        values: "0 0 1x20"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: KoggeAuditForwardingFailing
+        exp_alerts:
+          - exp_labels: { severity: critical }
+            exp_annotations:
+              summary: "Audit events do not reach the SIEM"
+              description: "Deliveries to KOGGE_AUDIT_FORWARD_URL fail; events are kept and sent once the SIEM accepts them again."
+
+  - name: the process is down
+    interval: 1m
+    input_series:
+      - series: 'up{job="kogge", instance="k1:9090"}'
+        values: "1 0x10"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: KoggeDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: kogge, instance: "k1:9090" }
+            exp_annotations:
+              summary: "Kogge on k1:9090 does not answer the metrics scrape"
+              description: "The process is down or its metrics listener is unreachable. Check the service (systemctl status kogge, docker compose ps) and its log."
+
+  - name: the data volume fills up
+    interval: 1m
+    input_series:
+      - series: 'kogge_data_free_bytes{job="kogge", instance="k1:9090"}'
+        values: "8589934592 3221225472x20 1073741824x5"
+      - series: 'kogge_data_min_free_bytes{job="kogge", instance="k1:9090"}'
+        values: "2147483648x30"
+    alert_rule_test:
+      - eval_time: 18m
+        alertname: KoggeStorageFillingUp
+        exp_alerts:
+          - exp_labels: { severity: warning, job: kogge, instance: "k1:9090" }
+            exp_annotations:
+              summary: "The data volume of Kogge on k1:9090 is filling up"
+              description: "3GiB are free, less than twice the reserve; below the reserve, Kogge refuses pushes and uploads."
+      - eval_time: 18m
+        alertname: KoggeStorageLow
+        exp_alerts: []
+      - eval_time: 24m
+        alertname: KoggeStorageLow
+        exp_alerts:
+          - exp_labels: { severity: critical, job: kogge, instance: "k1:9090" }
+            exp_annotations:
+              summary: "Kogge on k1:9090 refuses pushes and uploads: the data volume is nearly full"
+              description: "1GiB are free, less than the reserve Kogge keeps. Free space (old artifacts, repositories over their quota) or grow the volume."

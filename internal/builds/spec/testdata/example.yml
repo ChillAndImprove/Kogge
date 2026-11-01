@@ -1,0 +1,158 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+# A pipeline file with what the format offers: the reference of the format.
+version: 1
+
+# include: files whose pipelines, variables and defaults join this file's.
+# - A path is a file of this repository at the commit of the run; a mapping with repository (KEY/slug) names a file
+#   of another repository of the same code project at ref (a branch, tag or commit; default: its default branch).
+#   Files that such a file includes without a repository are of that repository, at the same commit.
+# - Files of other repositories are read with the permissions of the person the run is for: who pushed, opened the
+#   pull request or pushed its source, started the run by hand, through the API or a trigger (its creator), or runs
+#   it again. Schedules and runs after pipelines of other repositories read them as whoever pushed the commit to the
+#   branch; pushes of deploy keys have nobody, and their runs cannot include files of other repositories.
+#   Repositories of other code projects are never read.
+# - A pipeline is defined in one file. variables and defaults apply to all files: a file overrides the values of the
+#   files it includes; the same value set by two files of which neither includes the other is a mistake.
+# - A run reads the files once and keeps the commits: running it again reads them at the same commits.
+# - At most 25 files, nested 3 deep, each at most 256 KiB, together at most 1 MiB; YAML files (.yml, .yaml) only.
+include:
+  - .kogge/common.yml
+  - repository: PLATFORM/ci-templates
+    file: templates/security.yml
+    ref: main
+
+defaults:
+  image: docker.io/library/golang:1.27
+  runs-on: [linux, docker]
+  timeout: 30m
+  # resources: CPUs (decimals such as 0.5 allowed) and memory (k, m, g, t: powers of 1024) of each container of a job
+  # — its own and each service — with the container executor; memory gets no swap beyond it. Jobs and services set
+  # their own, key by key over these. The shell executor does not limit resources (the job's log says so). An agent
+  # takes only jobs whose containers ask for no more than its configuration allows (resources.maxCpus,
+  # resources.maxMemory); while no agent with a job's labels allows that much, the run's page says so.
+  resources: { cpus: 2, memory: 4g }
+
+variables:
+  GOFLAGS: -mod=readonly
+
+pipelines:
+  ci:
+    name: Build and test
+    on:
+      push:
+        branches: ["**"]
+        tags: ["v*"]
+      pull-request:
+        target-branches: [main]
+      manual: true
+    stages:
+      - name: Test
+        jobs:
+          - name: unit
+            # The job's own container gets more than the defaults; the service sets its memory and keeps 2 CPUs.
+            resources: { cpus: 4, memory: 8g }
+            services:
+              - name: postgres
+                image: docker.io/library/postgres:18-alpine
+                variables: { POSTGRES_PASSWORD: test }
+                resources: { memory: 1g }
+            variables:
+              DATABASE_URL: postgres://postgres:test@postgres:5432/postgres
+            cache:
+              - key: go-modules
+                key-files: [go.sum]
+                paths: [.cache/go-mod]
+            steps:
+              - name: Unit tests
+                run: |
+                  export GOMODCACHE=$PWD/.cache/go-mod
+                  go test -json ./... | go-junit-report > report.xml
+            reports:
+              junit: [report.xml]
+          - name: lint
+            image: docker.io/golangci/golangci-lint:v2
+            steps:
+              - run: golangci-lint run
+          # if: a condition, evaluated when the run is created. It sees event (push, pull-request, schedule, manual,
+          # api, pipeline), branch (of pull requests: the source branch), tag, ref (refs/heads/… or refs/tags/…),
+          # source_branch and target_branch (pull requests), commit_message, vars.NAME (variables of the file, the
+          # pipeline, the job — with its matrix values — and of the run's form; not those configured in Kogge, nor
+          # secrets) and changed('glob', …): whether the push or pull request changed a matching file (as for
+          # paths filters; when the changes are not known — tags, runs by hand, by the API or a schedule — every
+          # file counts as changed). It has ==, !=, &&, ||, !, parentheses, in ['a', 'b'] and the functions
+          # startsWith, endsWith, contains (texts) and matches (a glob such as release/*). What is known only later,
+          # such as how other jobs end, cannot be asked. Both only/except and if must allow a job; a job that if
+          # skips shows as skipped with its condition. Quote a condition that starts with ! or contains ": " or " #".
+          - name: docs
+            image: docker.io/library/python:3.13
+            if: changed('docs/**', '**/*.md') || contains(commit_message, '[docs]')
+            steps:
+              - run: make docs
+      - name: Package
+        jobs:
+          # needs: the jobs it waits for — by name, as stage/job, a matrix job (all its jobs), one of its jobs by its
+          # name ("test (1.27, linux)") or with {job: test, matrix: {GO: "1.27"}}, also of its own stage but not of
+          # later ones; in a job with a matrix, ${NAME} names the job of the same values ("build (${GO})"). The job
+          # starts as soon as they succeeded (or may fail), also before the earlier stages are done; needs: [] starts
+          # it at once. Without needs a job waits for all jobs of the earlier stages.
+          # - A job it needs that fails, is cancelled or skipped skips it (the run's page says why); jobs that do not
+          #   depend on the failure go on, and the run fails. Running the failed job again runs them again, too.
+          # - It waits for a job it needs that waits for a manual start; jobs nobody started do not hold up the run.
+          # - A job it needs that only, except or if leave out of the run skips it — unless the need is optional:
+          #   {job: x, optional: true}.
+          # - It receives the artifacts of the jobs it needs ({job: x, artifacts: false}: not of x); dependencies
+          #   choose instead and then must name jobs it waits for.
+          - name: build
+            needs: [unit, lint]
+            steps:
+              - run: make dist
+            artifacts:
+              - name: dist
+                paths: ["dist/**"]
+                expire-in: 30d
+          - name: sbom
+            needs: [{ job: build, artifacts: true }, { job: docs, optional: true, artifacts: false }]
+            steps:
+              - run: make sbom
+      - name: Deploy
+        only:
+          branches: [main]
+        # A stage's condition skips all its jobs.
+        if: event != 'pull-request' && !contains(commit_message, '[skip deploy]')
+        jobs:
+          - name: staging
+            environment: staging
+            needs: [build]
+            steps:
+              - run: ./deploy.sh staging
+          - name: production
+            environment: production
+            needs: [staging]
+            trigger: manual
+            steps:
+              - run: ./deploy.sh production
+          - name: announce
+            needs: [{ job: production, artifacts: false }]
+            steps:
+              - run: ./announce.sh
+
+  nightly:
+    on:
+      schedule:
+        - cron: "0 2 * * 1-5"
+          branch: main
+    stages:
+      - name: Integration
+        jobs:
+          - name: long-tests
+            timeout: 2h
+            matrix:
+              DATABASE: [postgres, mariadb]
+            steps:
+              - run: make test-integration DB=$DATABASE
+          - name: report
+            # A job of the matrix by its name, another by its values; needs: [long-tests] would be all of them.
+            needs: ["long-tests (postgres)", { job: long-tests, matrix: { DATABASE: mariadb } }]
+            steps:
+              - run: make report

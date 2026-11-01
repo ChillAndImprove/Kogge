@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2026 The Kogge authors
+# SPDX-License-Identifier: EUPL-1.2
+#
+# A backup of Kogge into /var/backups/kogge, keeping the newest seven (started by kogge-backup.timer). Kogge keeps
+# running; Git writes pause while the repositories are copied. Keep the master key separately.
+[Unit]
+Description=Kogge backup
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=kogge
+Group=kogge
+EnvironmentFile=/etc/kogge/kogge.env
+ExecStart=/usr/local/bin/kogge admin backup -dir /var/backups/kogge -keep 7
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/backups/kogge
+ReadOnlyPaths=/var/lib/kogge
+Nice=10
+IOSchedulingClass=idle
