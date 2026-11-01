@@ -56,7 +56,7 @@ test('plan a sprint in the backlog and work on the board', async ({ page }) => {
   await expect(start).toBeHidden();
 
   // The board shows the sprint; dragging the card to the next column transitions the issue.
-  await page.getByRole('link', { name: 'Active sprint' }).click();
+  await page.getByRole('link', { name: 'Current sprint' }).click();
   await expect(page.getByRole('heading', { name: `${key} Sprint 1` })).toBeVisible();
   const card = page.locator('.kogge-card', { hasText: 'Login with smart card' });
   await expect(card).toBeVisible();
@@ -81,7 +81,7 @@ test('plan a sprint in the backlog and work on the board', async ({ page }) => {
   await expect(page.getByRole('tab', { name: 'Burndown' })).toBeVisible();
   await expect(page.getByRole('cell', { name: /Sprint start|Sprintbeginn/ })).toBeVisible();
   await page.getByRole('tab', { name: 'Sprint report' }).click();
-  await expect(page.getByText(/Issues not completed/)).toBeVisible();
+  await expect(page.getByText(/Left open/)).toBeVisible();
 });
 
 test('filter, group and act on the cards of a board', async ({ page }) => {
@@ -137,7 +137,7 @@ test('filter, group and act on the cards of a board', async ({ page }) => {
   const lone = cards.filter({ hasText: 'Translate the error pages' });
   await lone.hover();
   await lone.getByRole('button', { name: `Actions for ${keys[2]}` }).click();
-  await page.getByRole('menuitem', { name: 'Assign to me' }).click();
+  await page.getByRole('menuitem', { name: 'Assign myself' }).click();
   await expect
     .poll(async () => (await apiGet(page, `/api/v1/issues/${keys[2]}`)).assignee?.id)
     .toBe(me.user.id);

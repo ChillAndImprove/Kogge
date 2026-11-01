@@ -22,7 +22,7 @@ export interface ShellDrawer {
 
 export const ShellDrawerContext = createContext<ShellDrawer>({ slot: null, open: () => {} });
 
-/** The container a sidebar belongs to: its avatar, name and kind ("SHOP · Software project"). */
+/** The container a sidebar belongs to: its avatar, name and kind ("SHOP · Development project"). */
 export interface SidebarHeaderProps {
   avatar: ReactNode;
   title: ReactNode;

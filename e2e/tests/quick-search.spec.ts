@@ -46,7 +46,7 @@ test('Ctrl+K finds an issue by its key and by words and opens a page with the ke
   await signIn(page);
   const f = await fixtures(page);
   await page.goto('/issues');
-  await expect(page.getByRole('heading', { name: 'Your work' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'My desk' })).toBeVisible();
 
   // Ctrl+K opens the quick search from anywhere; the field has the focus. In Kontor it looks in Kontor.
   await page.keyboard.press(quickSearchKey);

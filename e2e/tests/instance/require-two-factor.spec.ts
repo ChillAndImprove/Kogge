@@ -69,7 +69,7 @@ test('a required second factor is set up before anything else', async ({ page, b
     await expect(nora.getByRole('button', { name: 'I have saved the codes' })).toBeVisible();
     await nora.getByRole('button', { name: 'I have saved the codes' }).click();
     // Then the page she asked for opens.
-    await expect(nora.getByRole('heading', { name: 'Your work' })).toBeVisible();
+    await expect(nora.getByRole('heading', { name: 'My desk' })).toBeVisible();
 
     // The administration shows the policy.
     await admin.goto('/admin');

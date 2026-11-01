@@ -87,7 +87,7 @@ func (im *Importer) IssueType(srcID, name, description string, subtask bool) (in
 	case strings.Contains(lname, "story"):
 		icon = "story"
 	}
-	color := map[string]string{"epic": "grape", "story": "green", "bug": "red", "task": "blue", "subtask": "cyan"}[icon]
+	color := map[string]string{"epic": "orange", "story": "teal", "bug": "red", "task": "indigo", "subtask": "gray"}[icon]
 	return im.ensure("issuetype", srcID, "issue-type", func() (int64, error) {
 		var id int64
 		err := im.tx.QueryRow(im.ctx(), "SELECT id FROM issue_types WHERE lower(name) = lower($1)", name).Scan(&id)
@@ -348,7 +348,7 @@ func (im *Importer) Project(p ImportProject) (int64, error) {
 		return 0, err
 	}
 	if p.Board != "" {
-		c := BoardConfig{Swimlanes: Swimlanes{Type: "none"}, QuickFilters: []NamedQuery{{ID: 1, Name: "Only my issues", Query: "assignee = currentUser()"}},
+		c := BoardConfig{Swimlanes: Swimlanes{Type: "none"}, QuickFilters: []NamedQuery{{ID: 1, Name: "Mine", Query: "assignee = currentUser()"}},
 			Card: CardLayout{Fields: []string{}, Colors: "issuetype"}, Estimation: Estimation{Type: "count"}}
 		for _, st := range statuses {
 			c.Columns = append(c.Columns, BoardColumn{Name: infos[st].name, Statuses: []int64{st}})

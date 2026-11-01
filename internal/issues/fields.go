@@ -76,7 +76,7 @@ var systemFields = []FieldInfo{
 	{Key: FieldReporter, Name: "Reporter", Type: "user", Editable: true, Orderable: true},
 	{Key: FieldLabels, Name: "Labels", Type: "labels", Editable: true},
 	{Key: FieldComponents, Name: "Components", Type: "components", Editable: true},
-	{Key: FieldFixVersions, Name: "Fix versions", Type: "multiversion", Editable: true},
+	{Key: FieldFixVersions, Name: "Releases", Type: "multiversion", Editable: true},
 	{Key: FieldAffectsVersions, Name: "Affected versions", Type: "multiversion", Editable: true},
 	{Key: FieldDueDate, Name: "Due date", Type: "date", Editable: true, Orderable: true},
 	{Key: FieldParent, Name: "Parent", Type: "issue", Editable: true},

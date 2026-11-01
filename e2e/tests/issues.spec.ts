@@ -38,7 +38,7 @@ test('create a project and work on an issue', async ({ page }) => {
 
   // The default configuration is seeded in the instance language (English or German).
   await page.getByRole('button', { name: /^Status: / }).click();
-  await page.getByRole('menuitem', { name: /(Start progress|Bearbeitung beginnen)/ }).click();
+  await page.getByRole('menuitem', { name: /(Start work|Arbeit beginnen)/ }).click();
   await expect(page.getByRole('button', { name: /^Status: (In Progress|In Arbeit)/ })).toBeVisible();
 
   const comment = page.locator('.ProseMirror').last();

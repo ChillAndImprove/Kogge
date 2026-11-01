@@ -14,7 +14,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
-import { IconBolt, IconListDetails, IconPlus } from '@tabler/icons-react';
+import { IconListDetails, IconPlus, IconStack2 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -179,7 +179,7 @@ export function ProjectEpics() {
         </SimpleGrid>
       ) : list.length === 0 ? (
         <EmptyState
-          icon={IconBolt}
+          icon={IconStack2}
           title={t('issues.noEpicsTitle')}
           description={t('issues.noEpics')}
           action={

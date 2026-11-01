@@ -3,7 +3,6 @@
 
 import { Badge, Button, NavLink as MantineNavLink, Stack } from '@mantine/core';
 import {
-  IconBolt,
   IconChartLine,
   IconLayoutKanban,
   IconListDetails,
@@ -12,6 +11,7 @@ import {
   IconPlus,
   IconPuzzle,
   IconSettings,
+  IconStack2,
   IconTimeline,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -78,7 +78,7 @@ export function ProjectLayout() {
       : []),
     { to: `/projects/${p.key}`, label: t('issues.issuesNav'), icon: IconListDetails, end: true },
     ...(p.issueTypes.some((ty) => ty.level === 1)
-      ? [{ to: `/projects/${p.key}/epics`, label: t('agile.epics'), icon: IconBolt }]
+      ? [{ to: `/projects/${p.key}/epics`, label: t('agile.epics'), icon: IconStack2 }]
       : []),
     { to: `/projects/${p.key}/releases`, label: t('issues.releases'), icon: IconPackage },
     { to: `/projects/${p.key}/components`, label: t('issues.components'), icon: IconPuzzle },

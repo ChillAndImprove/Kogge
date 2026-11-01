@@ -36,12 +36,12 @@ var defaultTexts = texts{
 	"role.users":   {"Users", "Benutzer"},
 	"field.points": {"Story Points", "Story Points"}, "field.start": {"Start date", "Startdatum"},
 	"wf.simple": {"Simple workflow", "Einfacher Workflow"}, "wf.software": {"Software workflow", "Software-Workflow"},
-	"tr.start": {"Start progress", "Bearbeitung beginnen"}, "tr.stop": {"Stop progress", "Bearbeitung beenden"},
+	"tr.start": {"Start work", "Arbeit beginnen"}, "tr.stop": {"Pause work", "Arbeit unterbrechen"},
 	"tr.review": {"Request review", "Prüfung anfordern"}, "tr.changes": {"Request changes", "Änderungen anfordern"},
 	"tr.done": {"Done", "Erledigen"}, "tr.reopen": {"Reopen", "Wieder öffnen"},
 	"board.name":           {"%s board", "%s-Board"},
-	"board.quick.mine":     {"Only my issues", "Nur meine Vorgänge"},
-	"board.quick.recent":   {"Recently updated", "Kürzlich geändert"},
+	"board.quick.mine":     {"Mine", "Meine"},
+	"board.quick.recent":   {"Changed since yesterday", "Seit gestern geändert"},
 	"scheme.permissions":   {"Default permission scheme", "Standard-Berechtigungsschema"},
 	"scheme.notifications": {"Default notification scheme", "Standard-Benachrichtigungsschema"},
 }
@@ -84,11 +84,11 @@ func (s *Service) EnsureDefaults(ctx context.Context) error {
 			key, sql string
 			args     []any
 		}{
-			{"type.epic", "INSERT INTO issue_types (name, icon, color, level, position) VALUES ($1, 'epic', 'violet', 1, 1)", []any{t("type.epic")}},
-			{"type.story", "INSERT INTO issue_types (name, icon, color, level, position) VALUES ($1, 'story', 'green', 0, 2)", []any{t("type.story")}},
-			{"type.task", "INSERT INTO issue_types (name, icon, color, level, position) VALUES ($1, 'task', 'blue', 0, 3)", []any{t("type.task")}},
+			{"type.epic", "INSERT INTO issue_types (name, icon, color, level, position) VALUES ($1, 'epic', 'orange', 1, 1)", []any{t("type.epic")}},
+			{"type.story", "INSERT INTO issue_types (name, icon, color, level, position) VALUES ($1, 'story', 'teal', 0, 2)", []any{t("type.story")}},
+			{"type.task", "INSERT INTO issue_types (name, icon, color, level, position) VALUES ($1, 'task', 'indigo', 0, 3)", []any{t("type.task")}},
 			{"type.bug", "INSERT INTO issue_types (name, icon, color, level, position) VALUES ($1, 'bug', 'red', 0, 4)", []any{t("type.bug")}},
-			{"type.subtask", "INSERT INTO issue_types (name, icon, color, level, position) VALUES ($1, 'subtask', 'teal', -1, 5)", []any{t("type.subtask")}},
+			{"type.subtask", "INSERT INTO issue_types (name, icon, color, level, position) VALUES ($1, 'subtask', 'gray', -1, 5)", []any{t("type.subtask")}},
 			{"status.todo", "INSERT INTO statuses (name, category, position) VALUES ($1, 'todo', 1)", []any{t("status.todo")}},
 			{"status.progress", "INSERT INTO statuses (name, category, position) VALUES ($1, 'inprogress', 2)", []any{t("status.progress")}},
 			{"status.review", "INSERT INTO statuses (name, category, position) VALUES ($1, 'inprogress', 3)", []any{t("status.review")}},

@@ -29,7 +29,7 @@ test('build a dashboard with widgets', async ({ page }) => {
   await page.getByRole('button', { name: 'Done' }).click();
 
   // The starred dashboard is a tab on Kontor's start page.
-  await page.getByRole('navigation').getByRole('link', { name: 'Your work' }).click();
+  await page.getByRole('navigation').getByRole('link', { name: 'My desk' }).click();
   await page.getByRole('tab', { name }).click();
   await expect(page.getByRole('heading', { name: 'Open issues by status' })).toBeVisible();
 

@@ -65,7 +65,7 @@ test('edit an issue in place', async ({ page }) => {
   await page.getByRole('option', { name: /^(High|Hoch)$/ }).click();
   await expect(details.getByRole('button', { name: /^Priority (High|Hoch)/ })).toBeVisible();
 
-  await details.getByRole('button', { name: 'Assign to me' }).click();
+  await details.getByRole('button', { name: 'Assign myself' }).click();
   await expect(details.getByRole('button', { name: /^Assignee admin/ })).toBeVisible();
 
   // Empty fields wait behind "more fields".
@@ -93,14 +93,14 @@ test('edit an issue in place', async ({ page }) => {
     }),
   ).toBeVisible();
 
-  await details.getByRole('button', { name: /^Fix versions / }).click();
+  await details.getByRole('button', { name: /^Releases / }).click();
   await page.getByRole('option', { name: '2.0' }).click();
   await details.getByRole('heading', { name: 'Details' }).click();
   await expect(details.getByRole('link', { name: '2.0' })).toBeVisible();
 
   // The status is a menu of the workflow's transitions.
   await page.getByRole('button', { name: /^Status: / }).click();
-  await page.getByRole('menuitem', { name: /(Start progress|Bearbeitung beginnen)/ }).click();
+  await page.getByRole('menuitem', { name: /(Start work|Arbeit beginnen)/ }).click();
   await expect(page.getByRole('button', { name: /^Status: (In Progress|In Arbeit)/ })).toBeVisible();
 
   // Rich text fields: the description and a long text field of the project.
@@ -133,10 +133,10 @@ test('edit an issue in place', async ({ page }) => {
   await expect(linkDialog).toBeHidden();
   await expect(page.locator('.kogge-issue-main').getByRole('link', { name: `${p.key}-2` })).toBeVisible();
 
-  await details.getByRole('button', { name: 'Log work' }).click();
-  const logDialog = page.getByRole('dialog', { name: 'Log work' });
+  await details.getByRole('button', { name: 'Book time' }).click();
+  const logDialog = page.getByRole('dialog', { name: 'Book time' });
   await logDialog.getByRole('textbox', { name: /Time spent/ }).fill('1h 30m');
-  await logDialog.getByRole('button', { name: 'Log work' }).click();
+  await logDialog.getByRole('button', { name: 'Book time' }).click();
   await expect(logDialog).toBeHidden();
   await expect(details.getByText('1h 30m logged')).toBeVisible();
 

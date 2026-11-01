@@ -432,7 +432,7 @@ function Columns({
             {board.config.columns.map((col, i) => (
               <Group key={i} justify="space-between" px={6} style={{ flex: '1 0 240px' }} wrap="nowrap">
                 <Group gap={6} wrap="nowrap" style={{ minWidth: 0 }}>
-                  <Text size="xs" fw={700} tt="uppercase" c="dimmed" truncate>
+                  <Text size="sm" fw={600} truncate>
                     {col.name}
                   </Text>
                   <Text size="xs" fw={700} c="dimmed">

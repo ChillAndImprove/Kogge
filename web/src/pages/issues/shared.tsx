@@ -3,15 +3,15 @@
 
 import { Badge, Group, Text, ThemeIcon, Tooltip } from '@mantine/core';
 import {
-  IconArrowBadgeDown,
-  IconArrowBadgeUp,
-  IconBolt,
-  IconBookmark,
+  IconAntennaBars1,
+  IconAntennaBars2,
+  IconAntennaBars3,
+  IconAntennaBars4,
+  IconAntennaBars5,
   IconBug,
-  IconCheckbox,
-  IconChevronsDown,
-  IconChevronsUp,
-  IconEqual,
+  IconBulb,
+  IconCircleCheck,
+  IconStack2,
   IconSubtask,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -42,9 +42,9 @@ export function useProject(key: string | undefined) {
 }
 
 const typeIcons: Record<string, typeof IconBug> = {
-  epic: IconBolt,
-  story: IconBookmark,
-  task: IconCheckbox,
+  epic: IconStack2,
+  story: IconBulb,
+  task: IconCircleCheck,
   bug: IconBug,
   subtask: IconSubtask,
 };
@@ -58,10 +58,10 @@ export function TypeIcon({
   size?: number;
 }) {
   if (!type) return null;
-  const Icon = typeIcons[type.icon] ?? IconCheckbox;
+  const Icon = typeIcons[type.icon] ?? IconCircleCheck;
   return (
     <Tooltip label={type.name} openDelay={400}>
-      <ThemeIcon size={size} radius={4} color={type.color} variant="filled" role="img" aria-label={type.name}>
+      <ThemeIcon size={size} radius="xl" color={type.color} variant="light" role="img" aria-label={type.name}>
         <Icon size={size * 0.72} stroke={2.2} />
       </ThemeIcon>
     </Tooltip>
@@ -69,16 +69,16 @@ export function TypeIcon({
 }
 
 const priorityIcons: Record<string, typeof IconBug> = {
-  highest: IconChevronsUp,
-  high: IconArrowBadgeUp,
-  medium: IconEqual,
-  low: IconArrowBadgeDown,
-  lowest: IconChevronsDown,
+  highest: IconAntennaBars5,
+  high: IconAntennaBars4,
+  medium: IconAntennaBars3,
+  low: IconAntennaBars2,
+  lowest: IconAntennaBars1,
 };
 
 export function PriorityIcon({ priority, withName }: { priority?: Priority | null; withName?: boolean }) {
   if (!priority) return null;
-  const Icon = priorityIcons[priority.icon] ?? IconEqual;
+  const Icon = priorityIcons[priority.icon] ?? IconAntennaBars3;
   const color = `var(--mantine-color-${priority.color}-6)`;
   if (withName) {
     // The name is written next to the icon, which is decoration then.
